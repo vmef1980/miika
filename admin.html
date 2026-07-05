@@ -88,18 +88,22 @@
         button { border: none; padding: 16px; border-radius: 14px; cursor: pointer; font-weight: 800; transition: 0.3s; text-transform: uppercase; font-size: 0.85rem; }
         #btnGuardar { background: linear-gradient(135deg, var(--dark), #142e47); color: white; flex: 2; }
         #btnCancelar { background: #f1f5f9; color: #64748b; flex: 1; display: none; }
+        #btnEliminarForm { background: #fef2f2; color: var(--danger); flex: 1; display: none; }
 
         .table-wrapper { overflow-x: auto; border-radius: 20px; border: 1px solid #f1f5f9; }
         table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 1000px; }
         th { background: #f8fafc; color: #64748b; padding: 18px; text-align: left; border-bottom: 2px solid #f1f5f9; }
+        th:first-child, td:first-child { min-width: 96px; }
         td { padding: 16px; border-bottom: 1px solid #f8fafc; vertical-align: middle; }
         
         .id-text { display: block; font-size: 0.75rem; color: #94a3b8; }
         .id-text.hidden { display: none; }
 
         .img-preview { width: 55px; height: 55px; object-fit: cover; border-radius: 14px; background: #f1f5f9; display: block; }
-        .btn-accion { width: 38px; height: 38px; border-radius: 10px; cursor: pointer; border: none; display: inline-flex; align-items: center; justify-content: center; }
+        .celda-acciones { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+        .btn-accion { width: 38px; height: 38px; flex-shrink: 0; border-radius: 10px; cursor: pointer; border: none; display: inline-flex; align-items: center; justify-content: center; }
         .btn-edit { background: #eff6ff; color: var(--info); }
+        .btn-delete { background: #fef2f2; color: var(--danger); }
         .badge { padding: 6px 12px; border-radius: 10px; font-size: 0.7rem; font-weight: 800; }
         .disponible { background: #dcfce7; color: #166534; }
         .agotado { background: #fee2e2; color: #991b1b; }
@@ -169,6 +173,7 @@
             </div>
             <div class="btn-group">
                 <button type="submit" id="btnGuardar">Sincronizar Datos</button>
+                <button type="button" id="btnEliminarForm" onclick="eliminarDesdeForm()">Eliminar Producto</button>
                 <button type="button" id="btnCancelar" onclick="cancelarEdicion()">Descartar Cambios</button>
             </div>
         </form>
@@ -267,8 +272,8 @@
         color_primary: "#F47C20", 
         color_dark: "#1C3F60",    
         color_info: "#0074B7",    
-        SCRIPT_URL: "https://script.google.com/macros/s/AKfycbxoRbaTpCr4YOY3DlryOWe7PpTa9o6cF-djeupJkGwGP-jzPwaZlJMtn7IqR9RgrM5E/exec",
-        CSV_URL: "https://https://docs.google.com/spreadsheets/d/e/2PACX-1vT80KNCGOzydQ0Ww5eSsr_XgI9yr8tX6ZaTluaaRkdiJat5pqSiussvAJCzwKNQykwTzIrJkrHynfqb/pub?output=csv"
+        SCRIPT_URL: "https://script.google.com/macros/s/AKfycbwosy-w8ZbsO9LBW1Zte8r7wzVdtDuvDHKcgcjPt_KJFpAYX7lg1Am69XzgsPcgfnAl/exec",
+        CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vT80KNCGOzydQ0Ww5eSsr_XgI9yr8tX6ZaTluaaRkdiJat5pqSiussvAJCzwKNQykwTzIrJkrHynfqb/pub?output=csv"
     };
     
     let productosGlobal = [];
@@ -387,7 +392,12 @@
             const tr = document.createElement('tr');
             
             tr.innerHTML = `
-                <td><button class="btn-accion btn-edit"><i class="bi bi-pencil-square"></i></button></td>
+                <td>
+                    <div class="celda-acciones">
+                        <button class="btn-accion btn-edit"><i class="bi bi-pencil-square"></i></button>
+                        <button class="btn-accion btn-delete"><i class="bi bi-trash3"></i></button>
+                    </div>
+                </td>
                 <td class="td-foto"></td>
                 <td><strong class="prod-title"></strong><br><small class="id-text ${showID ? '' : 'hidden'}">${p.id}</small></td>
                 <td>${p.cat_nom}</td>
@@ -398,6 +408,7 @@
             
             tr.querySelector('.prod-title').innerText = p.titulo;
             tr.querySelector('.btn-edit').onclick = () => prepararEdicion(p.id);
+            tr.querySelector('.btn-delete').onclick = () => eliminarProducto(p.id, p.titulo);
             
             const imgNode = document.createElement('img');
             imgNode.className = "img-preview";
@@ -984,6 +995,25 @@
         }
     }
 
+    async function eliminarProducto(id, titulo) {
+        const confirmado = confirm(`¿Eliminar "${titulo}" (${id})?\n\nEsta acción no se puede deshacer.`);
+        if (!confirmado) return;
+
+        try {
+            await fetch(CONFIG.SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ action: "delete", id: id })
+            });
+            alert("🗑️ Producto eliminado. Recargando...");
+            cancelarEdicion();
+            setTimeout(cargarDatos, 2000);
+        } catch (e) {
+            alert("Error de comunicación con el servidor central.");
+            console.error(e);
+        }
+    }
+
     function prepararEdicion(id) {
         const p = productosGlobal.find(x => x.id === id);
         if (!p) return;
@@ -1003,6 +1033,7 @@
         document.getElementById('contenedorForm').classList.add('modo-edicion');
         document.getElementById('btnGuardar').innerText = "Guardar Cambios";
         document.getElementById('btnCancelar').style.display = "block";
+        document.getElementById('btnEliminarForm').style.display = "block";
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -1014,6 +1045,14 @@
         document.getElementById('contenedorForm').classList.remove('modo-edicion');
         document.getElementById('btnGuardar').innerText = "Sincronizar Datos";
         document.getElementById('btnCancelar').style.display = "none";
+        document.getElementById('btnEliminarForm').style.display = "none";
+    }
+
+    function eliminarDesdeForm() {
+        const id = document.getElementById('id').value.trim();
+        const titulo = document.getElementById('titulo').value.trim();
+        if (!id) return;
+        eliminarProducto(id, titulo);
     }
 
     function parseCSV(text) {
