@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Cotizaciones Pro | OrganizaGT</title>
+    
+    <link rel="icon" href="img/Flamax-v1.ico">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+
+    <style>
+        :root { --primary-color: #1C3F60; --secondary-color: #F47C20; --bg-light: #f8f9fa; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); }
+
+        .pdf-viewer { display: flex; justify-content: center; padding: 20px; background: #525659; overflow-x: auto; }
+
+        #cotizacion-pdf {
+            background: white;
+            padding: 40px 50px;
+            width: 800px; 
+            min-height: 1050px;
+            color: #333;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .header-table { width: 100%; border-bottom: 2px solid var(--primary-color); margin-bottom: 15px; table-layout: fixed; }
+        .logo-img { height: 75px; width: 75px; object-fit: contain; } 
+        .header-title { font-size: 1.4rem; color: var(--primary-color); margin-bottom: 2px; }
+        
+        .info-box { background: #fdfdfd; border: 1px solid #eee; padding: 10px; border-radius: 6px; font-size: 0.82rem; height: 100%; }
+        .table-pro { width: 100% !important; table-layout: fixed; word-wrap: break-word; margin-top: 10px; }
+        .table-pro thead { background-color: var(--primary-color); color: white; }
+        .table-pro th { padding: 8px 10px; font-size: 0.85rem; text-transform: uppercase; }
+        .table-pro td { vertical-align: middle; padding: 6px 10px; font-size: 0.85rem; border-bottom: 1px solid #eee; }
+
+        .prod-img-pdf { width: 50px; height: 50px; object-fit: contain; border: 1px solid #eee; border-radius: 4px; background: white; }
+
+        .totals-section { width: 280px; margin-left: auto; margin-top: 15px; }
+        .total-row { font-weight: bold; font-size: 1.05rem; color: var(--secondary-color); border-top: 2px solid #ddd; }
+
+        .sidebar-controls { background: white; padding: 20px; border-right: 1px solid #ddd; height: 100vh; overflow-y: auto; }
+        
+        .firma-espacio { 
+            margin: 40px auto 0 auto; 
+            width: 280px; 
+            border-top: 1px solid #333; 
+            text-align: center; 
+            font-size: 0.8rem;
+            padding-top: 8px;
+        }
+        .firma-img { max-width: 160px; max-height: 80px; margin: 0 auto 5px auto; display: block; }
+        
+        .col-codigo { display: table-cell; }
+        .hide-codigo .col-codigo { display: none !important; }
+
+        /* Estilo para los grupos en el select */
+        .ts-dropdown .optgroup-header { font-weight: bold; color: var(--primary-color); background: #f0f4f8; }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-4 d-print-none sidebar-controls">
+            <h5 class="mb-3 fw-bold text-uppercase" style="color:var(--primary-color)"><i class="bi bi-sliders"></i> Panel de Control</h5>
+            
+            <div class="mb-3 p-2 border rounded">
+                <label class="small fw-bold text-muted">CATÁLOGO (GOOGLE SHEETS)</label>
+                <input type="text" id="csvUrl" class="form-control form-control-sm mb-2" value="https://docs.google.com/spreadsheets/d/e/2PACX-1vTwVpHIAUk9o5t1bGr2TEn7TcSLvf_XGbX2-9irqECUDFHgdm_TjSSifw4VDKHTfMiX-dZmNz6cqXk_/pub?output=csv">
+                <button class="btn btn-dark btn-sm w-100" onclick="cargarCatalogo()">Sincronizar Productos</button>
+            </div>
+
+            <div class="mb-3 p-2 border rounded">
+                <label class="small fw-bold text-muted">DATOS DEL CLIENTE</label>
+                <input type="text" id="cNIT" class="form-control form-control-sm mb-1" placeholder="NIT" oninput="actualizarPDF()">
+                <input type="text" id="cNombre" class="form-control form-control-sm mb-1" placeholder="Nombre Empresa / Cliente" oninput="actualizarPDF()">
+                <input type="text" id="cContacto" class="form-control form-control-sm mb-1" placeholder="Atención a: (Nombre)" oninput="actualizarPDF()">
+                <input type="text" id="cDireccion" class="form-control form-control-sm mb-1" placeholder="Dirección" oninput="actualizarPDF()">
+                <input type="text" id="cTel" class="form-control form-control-sm mb-1" placeholder="Teléfono" oninput="actualizarPDF()">
+                <input type="text" id="cEmail" class="form-control form-control-sm mb-1" placeholder="Correo Electrónico" oninput="actualizarPDF()">
+            </div>
+
+            <div class="mb-3 p-2 border rounded bg-light">
+                <label class="small fw-bold text-primary">DATOS DEL VENDEDOR</label>
+                <input type="text" id="vNombre" class="form-control form-control-sm mb-1" placeholder="Nombre de quien firma" oninput="actualizarPDF()">
+                <input type="text" id="vPosicion" class="form-control form-control-sm mb-1" placeholder="Cargo" oninput="actualizarPDF()">
+                <input type="text" id="vTel" class="form-control form-control-sm mb-1" placeholder="Teléfono directo" oninput="actualizarPDF()">
+                <label class="small fw-bold text-primary mt-2">CARGAR FIRMA (PNG)</label>
+                <input type="file" id="fileFirma" class="form-control form-control-sm" accept="image/*" onchange="subirFirma(this)">
+            </div>
+
+            <div class="mb-3 p-2 border rounded bg-light">
+                <label class="small fw-bold">AÑADIR AL PEDIDO (CON BÚSQUEDA)</label>
+                <div id="loadingMsg" class="small text-primary mb-1" style="display:none"><i class="bi bi-hourglass-split"></i> Cargando imagen...</div>
+                <select id="productSelect" class="form-select mb-2" placeholder="Busca un producto..."></select>
+                <div class="input-group input-group-sm mb-2 mt-2">
+                    <span class="input-group-text">Cantidad</span>
+                    <input type="number" id="prodCant" class="form-control" value="1" min="1">
+                </div>
+                <button class="btn btn-primary btn-sm w-100" onclick="agregarItem()">Añadir a Tabla</button>
+            </div>
+
+            <div class="mb-3 p-2 border rounded">
+                <label class="small fw-bold text-primary">ENVÍO Y LOGÍSTICA</label>
+                <div class="input-group input-group-sm mb-2">
+                    <span class="input-group-text">Q</span>
+                    <input type="number" id="costoEnvio" class="form-control" value="0" oninput="actualizarTotales()">
+                </div>
+                <label class="small fw-bold text-danger">DESCUENTO (%)</label>
+                <input type="number" id="descGlobal" class="form-control form-control-sm" value="0" oninput="actualizarTotales()">
+            </div>
+
+            <div class="mb-3 p-2 border rounded">
+                <label class="small fw-bold">NOTAS Y CONDICIONES</label>
+                <textarea id="editNotas" class="form-control form-control-sm" rows="6" oninput="actualizarPDF()">Anticipo: 50% al confirmar el pedido y 50% al momento de la entrega.
+Forma de pago: efectivo o transferencia inmediata.
+Validez: 2 días calendario.
+Garantía: El producto es revisado previo la entrega, el cliente debe revisar el producto al momento de recibirlo. Solo aplica en casos excepcionales.</textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="small fw-bold text-danger">RÉGIMEN TRIBUTARIO</label>
+                <select id="regimenSelect" class="form-select form-select-sm" onchange="actualizarTotales()">
+                    <option value="0.05">Pequeño Contribuyente (5%)</option>
+                    <option value="0.12">IVA General (12%)</option>
+                    <option value="0">Exento</option>
+                </select>
+            </div>
+
+            <div class="mb-4 p-2 border rounded bg-white">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="checkCodigo" checked onchange="toggleCodigo()">
+                    <label class="form-check-label small fw-bold" for="checkCodigo">Mostrar Código de Producto</label>
+                </div>
+            </div>
+
+            <button class="btn btn-success w-100 py-3 fw-bold shadow-lg" onclick="exportarPDF()">
+                <i class="bi bi-file-earmark-pdf-fill"></i> GENERAR PDF CARTA
+            </button>
+        </div>
+
+        <div class="col-md-8 pdf-viewer">
+            <div id="cotizacion-pdf">
+                <table class="header-table">
+                    <tr>
+                        <td width="20%"><img id="logoSub" src="" class="logo-img"></td>
+                        <td width="60%" class="text-center">
+                            <h3 id="tituloEmpresas" class="header-title fw-bold"></h3>
+                            <p class="text-muted small mb-0 fw-bold">Cotización de Productos y Servicios </p>
+                            <p class="text-muted mb-0" style="font-size: 0.75rem;">Rompecabezas de Guatemala | NIT: 1659848-2 </p>
+                        </td>
+                        <td width="20%" class="text-end"><img id="logoMat" src="" class="logo-img"></td>
+                    </tr>
+                </table>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <div class="info-box">
+                            <div class="fw-bold text-uppercase mb-1" style="color:var(--primary-color); font-size: 0.75rem; border-bottom: 1px solid #eee;">Datos del Cliente</div>
+                            <div><span class="fw-bold">NIT:</span> <span id="outNIT">--</span></div>
+                            <div id="outNombre" class="fw-bold text-uppercase" style="color:#000">--</div>
+                            <div><span class="fw-bold">Atención:</span> <span id="outContacto">--</span></div>
+                            <div id="outDireccion" class="text-muted">--</div>
+                            <div><span class="fw-bold">Tel:</span> <span id="outTel">--</span> | <span id="outEmail">--</span></div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="info-box">
+                            <div class="fw-bold text-uppercase mb-1" style="color:var(--primary-color); font-size: 0.75rem; border-bottom: 1px solid #eee;">Referencia</div>
+                            <div><span class="fw-bold">Fecha:</span> <span id="outFecha"></span></div>
+                            <div><span class="fw-bold">No. Cotización:</span> <span id="outID">C-2026-085</span></div>
+                            <div><span class="fw-bold">Moneda:</span> Quetzales (GTQ)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="table table-pro">
+                    <thead>
+                        <tr>
+                            <th width="8%">Cant.</th>
+                            <th width="12%">Ref.</th>
+                            <th width="15%" class="col-codigo">Código</th>
+                            <th width="35%">Descripción del Producto</th>
+                            <th width="15%" class="text-end">P. Unitario</th>
+                            <th width="15%" class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaItems"></tbody>
+                </table>
+
+                <div class="totals-section">
+                    <div class="d-flex justify-content-between px-2 small">
+                        <span>Subtotal Bruto:</span> <span id="resSubtotal">Q0.00</span>
+                    </div>
+                    <div id="rowDescuento" class="d-flex justify-content-between px-2 text-danger small" style="display:none">
+                        <span id="labelDescuento">Descuento (0%):</span> <span id="resDescuento">-Q0.00</span>
+                    </div>
+                    <div id="rowEnvio" class="d-flex justify-content-between px-2 small">
+                        <span>Gastos de Envío:</span> <span id="resEnvio">Q0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between px-2 text-muted" style="font-size: 0.7rem; font-style: italic;">
+                        <span id="labelRegimen">Régimen:</span> <span id="valRegimen">--</span>
+                    </div>
+                    <div class="d-flex justify-content-between px-2 text-muted small">
+                        <span>Impuestos Aplicados:</span> <span id="resImpuesto">Q0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between px-2 total-row mt-1 pt-1">
+                        <span>TOTAL NETO:</span> <span id="resTotal">Q0.00</span>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <div class="fw-bold small border-bottom mb-1" style="color:var(--primary-color)">NOTAS Y CONDICIONES COMERCIALES:</div>
+                    <div id="outNotas" class="text-muted" style="white-space: pre-line; font-size: 0.75rem; line-height: 1.2;"></div>
+                </div>
+
+                <div class="firma-espacio">
+                    <img id="outFirmaImg" src="" class="firma-img" style="display:none">
+                    <div class="fw-bold" id="outVNombre">--</div>
+                    <div id="outVPosicion">--</div>
+                    <div id="outVTel">--</div>
+                    <div class="fw-bold mt-1" id="firmaEmpresa" style="color: var(--primary-color)">--</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const CONFIG = {
+        empresaMatriz: "Rompecabezas de Guatemala",
+        empresaSubsidiaria: "Flamax",
+        logoMatriz: "img/RompecabezasDeGuatemala.png", 
+        logoSubsidiaria: "img/Flamax-v1.png",
+        proxy: "https://images.weserv.nl/?url=" 
+    };
+
+    let productosCatalog = [];
+    let cotizacionItems = [];
+    let tomSelectControl = null;
+
+    window.onload = () => {
+        document.getElementById('logoSub').src = CONFIG.logoSubsidiaria;
+        document.getElementById('logoMat').src = CONFIG.logoMatriz;
+        document.getElementById('tituloEmpresas').innerText = `${CONFIG.empresaSubsidiaria} | ${CONFIG.empresaMatriz}`;
+        document.getElementById('firmaEmpresa').innerText = CONFIG.empresaSubsidiaria;
+        document.getElementById('outFecha').innerText = new Date().toLocaleDateString();
+        
+        // Inicializar buscador en el select
+        tomSelectControl = new TomSelect("#productSelect", {
+            create: false,
+            sortField: { field: "text", direction: "asc" },
+            maxOptions: null
+        });
+
+        actualizarPDF();
+    };
+
+    function formatQ(valor) {
+        return 'Q' + valor.toLocaleString('es-GT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function toggleCodigo() {
+        const checked = document.getElementById('checkCodigo').checked;
+        const pdfContainer = document.getElementById('cotizacion-pdf');
+        pdfContainer.classList.toggle('hide-codigo', !checked);
+    }
+
+    function subirFirma(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgEl = document.getElementById('outFirmaImg');
+                imgEl.src = e.target.result;
+                imgEl.style.display = "block";
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    async function cargarCatalogo() {
+        const url = document.getElementById('csvUrl').value;
+        try {
+            const res = await fetch(url);
+            const text = await res.text();
+            const rawRows = csvToArray(text);
+            
+            // Agrupar por Categoría (Asumiendo que r[4] o r[5] es la categoría según tu CSV)
+            // En el CSV proporcionado, r[4] parece ser la categoría/subcategoría
+            productosCatalog = rawRows.slice(1).filter(r => r.length > 1).map(r => ({
+                id: r[0],
+                nombre: r[1] ? r[1].split('|')[0].trim() : "Producto",
+                categoria: r[4] ? r[4].trim() : "Otros", // Usamos la columna de categoría
+                imagenUrl: getDirectImgUrl(r[2] ? r[2].trim() : ""), 
+                precio: parseFloat(String(r[9]).replace(/[^0-9.]/g, '')) || 0
+            }));
+
+            // Actualizar TomSelect con grupos
+            tomSelectControl.clear();
+            tomSelectControl.clearOptions();
+            
+            // Agrupar productos para el select
+            const categorias = [...new Set(productosCatalog.map(p => p.categoria))];
+            categorias.forEach(cat => {
+                tomSelectControl.addOptionGroup(cat, {label: cat.toUpperCase()});
+            });
+
+            productosCatalog.forEach(p => {
+                tomSelectControl.addOption({
+                    value: p.id,
+                    text: `${p.nombre} (${formatQ(p.precio)})`,
+                    optgroup: p.categoria
+                });
+            });
+
+            alert("✅ Catálogo sincronizado y organizado por subcategorías.");
+        } catch (e) { alert("❌ Error de carga."); }
+    }
+
+    async function toBase64(url) {
+        if (!url) return "";
+        try {
+            const cleanUrl = url.replace(/^https?:\/\//, '');
+            const proxiedUrl = CONFIG.proxy + encodeURIComponent(cleanUrl) + "&w=200&output=jpg";
+            const response = await fetch(proxiedUrl);
+            const blob = await response.blob();
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(blob);
+            });
+        } catch (e) { 
+            console.error("Error cargando imagen:", e);
+            return ""; 
+        }
+    }
+
+    async function agregarItem() {
+        const id = tomSelectControl.getValue();
+        if(!id) return alert("Selecciona un producto");
+        const cant = parseInt(document.getElementById('prodCant').value);
+        const prod = productosCatalog.find(p => p.id === id);
+        if (prod) {
+            document.getElementById('loadingMsg').style.display = "block";
+            const imgBase64 = await toBase64(prod.imagenUrl);
+            cotizacionItems.push({ ...prod, imagen: imgBase64, cantidad: cant, subtotal: prod.precio * cant });
+            document.getElementById('loadingMsg').style.display = "none";
+            renderItems();
+        }
+    }
+
+    function renderItems() {
+        const container = document.getElementById('listaItems');
+        container.innerHTML = cotizacionItems.map((item, index) => `
+            <tr>
+                <td class="text-center fw-bold">${item.cantidad}</td>
+                <td class="text-center">${item.imagen ? `<img src="${item.imagen}" class="prod-img-pdf">` : '<small>-</small>'}</td>
+                <td class="col-codigo"><small>${item.id}</small></td>
+                <td><div class="fw-bold">${item.nombre}</div><i class="bi bi-x-circle d-print-none text-danger" style="cursor:pointer" onclick="cotizacionItems.splice(${index},1);renderItems();"></i></td>
+                <td class="text-end">${formatQ(item.precio)}</td>
+                <td class="text-end fw-bold">${formatQ(item.subtotal)}</td>
+            </tr>
+        `).join('');
+        actualizarTotales();
+    }
+
+    function actualizarTotales() {
+        const subBruto = cotizacionItems.reduce((acc, i) => acc + i.subtotal, 0);
+        const porcDesc = parseFloat(document.getElementById('descGlobal').value) || 0;
+        const envio = parseFloat(document.getElementById('costoEnvio').value) || 0;
+        const montoDesc = subBruto * (porcDesc / 100);
+        
+        const baseConDescuentoYEnvio = (subBruto - montoDesc + envio);
+        const selectRegimen = document.getElementById('regimenSelect');
+        const factorImpuesto = parseFloat(selectRegimen.value);
+        const montoImpuesto = baseConDescuentoYEnvio * factorImpuesto;
+        const totalFinal = baseConDescuentoYEnvio + montoImpuesto;
+
+        document.getElementById('resSubtotal').innerText = formatQ(subBruto);
+        document.getElementById('resEnvio').innerText = formatQ(envio);
+        document.getElementById('resImpuesto').innerText = formatQ(montoImpuesto);
+        document.getElementById('valRegimen').innerText = selectRegimen.options[selectRegimen.selectedIndex].text;
+        
+        const rowD = document.getElementById('rowDescuento');
+        if(montoDesc > 0) {
+            rowD.style.display = "flex";
+            document.getElementById('labelDescuento').innerText = `Descuento (${porcDesc}%):`;
+            document.getElementById('resDescuento').innerText = `-${formatQ(montoDesc)}`;
+        } else {
+            rowD.style.display = "none";
+        }
+        document.getElementById('resTotal').innerText = formatQ(totalFinal);
+    }
+
+    function actualizarPDF() {
+        document.getElementById('outNIT').innerText = document.getElementById('cNIT').value || "--";
+        document.getElementById('outNombre').innerText = document.getElementById('cNombre').value || "NOMBRE DEL CLIENTE";
+        document.getElementById('outContacto').innerText = document.getElementById('cContacto').value || "Quien interese";
+        document.getElementById('outDireccion').innerText = document.getElementById('cDireccion').value || "Ciudad de Guatemala";
+        document.getElementById('outTel').innerText = document.getElementById('cTel').value || "--";
+        document.getElementById('outEmail').innerText = document.getElementById('cEmail').value || "--";
+        document.getElementById('outVNombre').innerText = document.getElementById('vNombre').value || "Firma Responsable";
+        document.getElementById('outVPosicion').innerText = document.getElementById('vPosicion').value || "Cargo";
+        document.getElementById('outVTel').innerText = "Contacto: " + (document.getElementById('vTel').value || "--");
+        document.getElementById('outNotas').innerText = document.getElementById('editNotas').value;
+        actualizarTotales();
+    }
+
+    async function exportarPDF() {
+        const source = document.getElementById('cotizacion-pdf');
+        const workerDiv = document.createElement('div');
+        workerDiv.style.position = 'absolute';
+        workerDiv.style.left = '-9999px';
+        workerDiv.style.top = '0';
+        workerDiv.style.width = '750px'; 
+        document.body.appendChild(workerDiv);
+
+        const clone = source.cloneNode(true);
+        clone.style.boxShadow = "none";
+        clone.style.margin = "0";
+        clone.style.padding = "35px"; 
+        clone.style.width = "100%";
+        clone.style.minHeight = "auto";
+        workerDiv.appendChild(clone);
+
+        const imgLogoSub = document.getElementById('logoSub').src;
+        const imgLogoMat = document.getElementById('logoMat').src;
+        const tituloRepetir = document.getElementById('tituloEmpresas').innerText;
+
+        const opt = {
+            margin: [1.1, 0.4, 0.8, 0.4],
+            filename: `Cotización_${document.getElementById('cNombre').value || 'Cliente'}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0, scrollX: 0 },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        const doc = html2pdf().set(opt).from(clone).toPdf().get('pdf');
+
+        doc.then(function (pdf) {
+            const totalPages = pdf.internal.getNumberOfPages();
+            for (let i = 1; i <= totalPages; i++) {
+                pdf.setPage(i);
+                pdf.setFontSize(8);
+                pdf.setTextColor(150);
+                pdf.text('Documento de carácter informativo - Página ' + i + ' de ' + totalPages, pdf.internal.pageSize.getWidth() / 2, pdf.internal.pageSize.getHeight() - 0.4, { align: 'center' });
+
+                if (i > 1) {
+                    pdf.setDrawColor(28, 63, 96);
+                    pdf.setLineWidth(0.015);
+                    pdf.line(0.4, 0.95, pdf.internal.pageSize.getWidth() - 0.4, 0.95);
+                    pdf.setFontSize(10);
+                    pdf.setFont(undefined, 'bold');
+                    pdf.setTextColor(33, 33, 33);
+                    pdf.text(tituloRepetir, pdf.internal.pageSize.getWidth() / 2, 0.7, { align: 'center' });
+                    try {
+                        pdf.addImage(imgLogoSub, 'PNG', 0.4, 0.2, 0.6, 0.6); 
+                        pdf.addImage(imgLogoMat, 'PNG', pdf.internal.pageSize.getWidth() - 1, 0.2, 0.6, 0.6);
+                    } catch(e) {}
+                }
+            }
+        }).save().then(() => {
+            document.body.removeChild(workerDiv);
+        });
+    }
+
+    function csvToArray(strData) {
+        const objPattern = new RegExp(("(\\,|\\r?\\n|\\r|^)(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|([^\\,\\r\\n]*))"), "gi");
+        let arrData = [[]], arrMatches = null;
+        while (arrMatches = objPattern.exec(strData)) {
+            let strMatchedDelimiter = arrMatches[1];
+            if (strMatchedDelimiter.length && (strMatchedDelimiter != ",")) arrData.push([]);
+            let strMatchedValue = arrMatches[2] ? arrMatches[2].replace(new RegExp("\"\"", "g"), "\"") : arrMatches[3];
+            arrData[arrData.length - 1].push(strMatchedValue);
+        }
+        return arrData;
+    }
+
+    function getDirectImgUrl(url) {
+        if (!url || !url.includes("drive.google.com")) return url;
+        let id = url.includes("id=") ? url.split("id=")[1].split("&")[0] : url.split("/d/")[1].split("/")[0];
+        return `https://docs.google.com/uc?export=view&id=${id}`;
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sticker Lab Pro 2026 | EKIPRO</title>
+    <style>
+        :root {
+            --primary: #ff6600;
+            --bg-dark: #0f172a;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+            background: radial-gradient(circle at top right, #1e293b, #020617);
+            color: #f1f5f9;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .main-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 40px;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            max-width: 1300px;
+            width: 100%;
+            overflow: hidden;
+            box-shadow: 0 50px 100px -20px rgba(0,0,0,0.5);
+        }
+
+        @media (max-width: 1000px) {
+            .main-card { grid-template-columns: 1fr; }
+        }
+
+        .editor-section {
+            padding: 50px;
+            background: rgba(255, 255, 255, 0.02);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .preview-section {
+            padding: 50px;
+            background: linear-gradient(135deg, rgba(255, 102, 0, 0.1) 0%, transparent 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-left: 1px solid var(--glass-border);
+        }
+
+        h1 {
+            font-size: 38px;
+            font-weight: 900;
+            margin-bottom: 30px;
+            background: linear-gradient(to right, #fff, #ff6600);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .control-group { margin-bottom: 25px; }
+
+        label {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+            color: #94a3b8;
+        }
+
+        select, input, textarea {
+            width: 100%;
+            padding: 15px;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        select option { background: #0f172a; }
+
+        input[type="color"] {
+            height: 50px;
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .icon-library {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--glass-border);
+        }
+
+        .icon-box {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: 0.2s;
+            background: rgba(255,255,255,0.03);
+        }
+
+        .icon-box:hover {
+            background: var(--primary);
+            transform: scale(1.1);
+        }
+
+        .category-title {
+            grid-column: span 10;
+            font-size: 9px;
+            font-weight: 800;
+            color: #64748b;
+            margin: 15px 0 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 4px;
+        }
+
+        .btn-main {
+            width: 100%;
+            padding: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 20px 40px rgba(255, 102, 0, 0.2);
+            transition: 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn-main:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 25px 50px rgba(255, 102, 0, 0.4);
+        }
+
+        /* STICKER STYLES */
+        #sticker-container { padding: 40px; background: transparent; }
+
+        .sticker-card {
+            width: 350px;
+            height: 350px;
+            border-radius: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        #p-icon { font-size: 110px; margin-bottom: 10px; }
+        #p-text { 
+            font-weight: 900; 
+            font-size: 28px; 
+            padding: 0 30px; 
+            line-height: 1.1; 
+            text-transform: uppercase;
+        }
+        #p-subtext {
+            margin-top: 20px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            padding: 6px 16px;
+            border-radius: 100px;
+            background: rgba(0,0,0,0.15);
+        }
+
+        .toast {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: #10b981;
+            padding: 15px 30px;
+            border-radius: 20px;
+            font-weight: 700;
+            transform: translateX(200%);
+            transition: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 100;
+        }
+        .toast.show { transform: translateX(0); }
+    </style>
+</head>
+<body>
+
+    <div class="main-card">
+        <div class="editor-section">
+            <h1>Sticker Lab Pro</h1>
+            
+            <div class="control-group">
+                <label>Marca / Empresa</label>
+                <div style="display: flex; gap: 10px;">
+                    <select id="brandSelect" onchange="syncBrand()">
+                        <option value="EKIPRO Guatemala">Ekipro</option>
+                        <option value="GuateCocina">GuateCocina</option>
+                        <option value="Guate3DLabs">Guate3DLabs</option>
+                        <option value="CUSTOM">-- Manual --</option>
+                    </select>
+                    <input type="text" id="customBrand" placeholder="Nombre..." oninput="update()">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Biblioteca de Frases</label>
+                <select id="phraseSelect" onchange="applyPhrase()">
+                    <optgroup label="Ventas">
+                        <option value="¡Gracias por tu compra!">Gracias por tu compra</option>
+                        <option value="Pedido Confirmado ✅">Pedido Confirmado</option>
+                        <option value="¡Excelente elección!">Excelente elección</option>
+                    </optgroup>
+                    <optgroup label="Pagos">
+                        <option value="Pagas al recibir 💰">Pago contra entrega</option>
+                        <option value="Envíanos tu comprobante 📲">Solicitar Comprobante</option>
+                        <option value="Pago Recibido con éxito">Pago Exitoso</option>
+                    </optgroup>
+                    <optgroup label="Envíos">
+                        <option value="Tu pedido va en camino 🚚">En camino</option>
+                        <option value="Envío GRATIS hoy">Envío Gratis</option>
+                        <option value="Entregamos en todo el país 🇬🇹">Entrega Nacional</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Texto del Sticker</label>
+                <textarea id="mainText" rows="2" oninput="update()">¡GRACIAS POR TU COMPRA!</textarea>
+            </div>
+
+            <div class="control-group">
+                <label>Colores</label>
+                <div class="color-grid">
+                    <div><label style="font-size: 8px">Fondo</label><input type="color" id="bgColor" value="#ff6600" oninput="update()"></div>
+                    <div><label style="font-size: 8px">Texto</label><input type="color" id="textColor" value="#ffffff" oninput="update()"></div>
+                    <div><label style="font-size: 8px">Borde</label><input type="color" id="borderColor" value="#ffffff" oninput="update()"></div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Iconos por Categoría</label>
+                <div class="icon-library" id="iconLibrary"></div>
+            </div>
+
+            <button class="btn-main" onclick="copyToClipboard()">COPIAR PARA WHATSAPP</button>
+        </div>
+
+        <div class="preview-section">
+            <div id="sticker-container">
+                <div class="sticker-card" id="stickerCard" style="background-color: #ff6600; border: 12px solid #ffffff;">
+                    <div id="p-icon">✅</div>
+                    <div id="p-text" style="color: #ffffff;">¡GRACIAS POR TU COMPRA!</div>
+                    <div id="p-subtext" style="color: #ffffff;">EKIPRO Guatemala</div>
+                </div>
+            </div>
+            <p style="font-size: 12px; color: #64748b; margin-top: 20px;">Vista previa de alta resolución</p>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">🚀 ¡Copiado con éxito!</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        const iconCategories = {
+            "Finanzas": ['💰', '💵', '💳', '🏦', '📲', '💹', '💎', '🧾'],
+            "Logística": ['📦', '🚚', '🚛', '🛵', '✈️', '📍', '🏠', '🌍', '⛽'],
+            "Estado": ['✅', '⏳', '🔥', '✨', '🆕', '🛑', '❌', '🕒', '🚀', '⭐'],
+            "Ventas": ['🛍️', '🛒', '🏷️', '📢', '🤝', '🙌', '💯', '🔔', '🎁'],
+            "Técnico": ['🛠️', '🔧', '⚙️', '💻', '🖨️', '🖱️', '🎨', '🔋'],
+            "Social": ['📞', '💬', '📧', '📍', '👤', '🏁']
+        };
+
+        const iconLibrary = document.getElementById('iconLibrary');
+        
+        for (const [category, icons] of Object.entries(iconCategories)) {
+            const title = document.createElement('div');
+            title.className = 'category-title';
+            title.innerText = category;
+            iconLibrary.appendChild(title);
+
+            icons.forEach(icon => {
+                const el = document.createElement('div');
+                el.className = 'icon-box';
+                el.innerText = icon;
+                el.onclick = () => {
+                    document.getElementById('p-icon').innerText = icon;
+                };
+                iconLibrary.appendChild(el);
+            });
+        }
+
+        function syncBrand() {
+            const select = document.getElementById('brandSelect');
+            const input = document.getElementById('customBrand');
+            if(select.value !== "CUSTOM") {
+                input.value = select.value;
+                input.style.display = "none";
+            } else {
+                input.style.display = "block";
+                input.value = "";
+                input.focus();
+            }
+            update();
+        }
+
+        function applyPhrase() {
+            const val = document.getElementById('phraseSelect').value;
+            if(val) {
+                document.getElementById('mainText').value = val;
+                update();
+            }
+        }
+
+        function update() {
+            const sticker = document.getElementById('stickerCard');
+            const mainText = document.getElementById('mainText').value;
+            const subText = document.getElementById('customBrand').value;
+            
+            document.getElementById('p-text').innerText = mainText;
+            document.getElementById('p-subtext').innerText = subText;
+            
+            const bgColor = document.getElementById('bgColor').value;
+            const textColor = document.getElementById('textColor').value;
+            const borderColor = document.getElementById('borderColor').value;
+            
+            sticker.style.backgroundColor = bgColor;
+            sticker.style.borderColor = borderColor;
+            document.getElementById('p-text').style.color = textColor;
+            document.getElementById('p-subtext').style.color = textColor;
+        }
+
+        async function copyToClipboard() {
+            const container = document.getElementById('sticker-container');
+            const canvas = await html2canvas(container, {
+                backgroundColor: null,
+                scale: 3,
+                logging: false
+            });
+            
+            canvas.toBlob(async (blob) => {
+                try {
+                    const data = [new ClipboardItem({ [blob.type]: blob })];
+                    await navigator.clipboard.write(data);
+                    showToast();
+                } catch (err) {
+                    alert("Error al copiar. Usa Chrome o Edge en PC, o guarda la imagen en móvil.");
+                }
+            });
+        }
+
+        function showToast() {
+            const t = document.getElementById('toast');
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // Inicialización
+        syncBrand();
+    </script>
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es-GT">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" id="meta-theme-color" content="#F47C20" />
+  <title id="page-title">Carrito | Flamax</title>
+
+  <link rel="icon" id="favicon" href="img/Flamax-v1.ico" type="image/x-icon">
+
+  <!-- ══ SEGURIDAD: Protección de contenido ══ -->
+  <script>
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "F12" || e.keyCode === 123) { e.preventDefault(); return false; }
+      if (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C" || e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) { e.preventDefault(); return false; }
+      if (e.ctrlKey && (e.key === "u" || e.key === "U" || e.keyCode === 85)) { e.preventDefault(); return false; }
+      if (e.ctrlKey && (e.key === "s" || e.key === "S" || e.keyCode === 83)) { e.preventDefault(); return false; }
+      if (e.ctrlKey && (e.key === "p" || e.key === "P" || e.keyCode === 80)) { e.preventDefault(); return false; }
+    });
+    document.addEventListener("contextmenu", function(e) { e.preventDefault(); return false; });
+    (function detectDevTools() {
+      const threshold = 160;
+      function check() {
+        if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
+          document.body.innerHTML = "<div style='display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#c0392b;font-size:1.5rem;font-weight:bold;'>⚠️ Herramientas de desarrollador no permitidas.</div>";
+        }
+      }
+      setInterval(check, 1000);
+    })();
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+  
+  <style>
+    :root {
+      --primary: #F47C20;
+      --primary-dark: #e06b10;
+      --success: #28a745;
+      --accent: #0074B7;
+      --highlight: #FFD447;
+      --text-dark: #1C3F60;
+      --text-soft: #666;
+      --border: rgba(0,0,0,0.08);
+      --shadow: 0 8px 32px rgba(0,0,0,0.08);
+      --radius: 16px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #fff8f0 0%, #e6f7ff 100%);
+      color: var(--text-dark);
+      min-height: 100vh;
+      padding: 1.5rem 1rem 180px;
+      line-height: 1.6;
+    }
+
+    .c {
+      max-width: 700px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    header {
+      background: white;
+      padding: 2rem 1rem;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    header img.logo {
+      width: 150px;
+      margin-bottom: 0.5rem;
+      border-radius: 12px;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    /* PRODUCTOS EN LISTA */
+    .i {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.2rem;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    .img-wrap {
+      width: 80px;
+      height: 80px;
+      flex-shrink: 0;
+      position: relative;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .i img { width: 90%; height: 90%; object-fit: contain; }
+    
+    .info { flex-grow: 1; }
+    .info h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.2rem; color: var(--text-dark); }
+    .pr { color: var(--primary); font-weight: 700; font-size: 1.1rem; }
+    
+    /* CONTROLES DE CANTIDAD (STEPPER) */
+    .stepper {
+      display: flex;
+      align-items: center;
+      background: #f8f9fa;
+      border-radius: 50px;
+      padding: 4px;
+      border: 1px solid var(--border);
+    }
+    .stepper button {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: white;
+      color: var(--text-dark);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .stepper button:hover { background: var(--primary); color: white; }
+    .stepper button.del:hover { background: #e74c3c; }
+    .stepper .count {
+      width: 35px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    /* SECCIONES DE FORMULARIO */
+    .se {
+      background: #fcfcfc;
+      padding: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .se h3 {
+      margin-bottom: 1rem;
+      color: var(--text-dark);
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    select, textarea {
+      width: 100%;
+      padding: 0.9rem;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      font-family: inherit;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      transition: var(--transition);
+    }
+    select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(244,124,32,0.1);
+    }
+
+    .op {
+      margin-bottom: 0.8rem;
+      padding: 0.8rem;
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    .op label { cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%; }
+    .op input[type="radio"] { accent-color: var(--primary); width: 18px; height: 18px; }
+
+    .n {
+      padding: 0.9rem;
+      background: #eef7ff;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      color: var(--accent);
+      border-left: 4px solid var(--accent);
+    }
+
+    /* RESUMEN */
+    .r {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .l {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      color: var(--text-soft);
+    }
+    .tot {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      border-top: 2px dashed var(--border);
+      padding-top: 1rem;
+      margin-top: 1rem;
+    }
+    .tot strong { color: var(--primary); }
+
+    /* BOTONES */
+    .btn {
+      display: block; width: calc(100% - 2.4rem); margin: 1rem 1.2rem;
+      padding: 1.1rem; border-radius: 14px;
+      font-size: 1.1rem; font-weight: 700;
+      text-align: center; border: none; cursor: pointer;
+      transition: var(--transition);
+      background: var(--success); color: white;
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3); }
+    
+    .btn-vaciar {
+      display: block; width: calc(100% - 2.4rem); margin: 0 1.2rem;
+      padding: 0.8rem; background: none; color: #999;
+      border: none; font-size: 0.9rem; cursor: pointer;
+      text-decoration: underline;
+    }
+
+    #boton-volver {
+      position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+      background: white; padding: 0.8rem 1.5rem; border-radius: 30px;
+      box-shadow: var(--shadow); text-decoration: none; color: var(--text-dark);
+      font-weight: 600; z-index: 998; border: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+      cursor: pointer;
+    }
+
+    footer {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+      padding: 1rem; text-align: center; border-top: 1px solid var(--border);
+    }
+
+    @media (max-width:480px) {
+      body { padding: 1rem 0.5rem 180px; }
+      header h1 { font-size: 1.5rem; }
+      .i { padding: 0.8rem; }
+      .img-wrap { width: 65px; height: 65px; }
+      .info h3 { font-size: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="c">
+    <header>
+      <img id="logo-header" src="" alt="Logo" class="logo">
+      <h1 id="main-title">Tu Carrito</h1>
+    </header>
+
+    <div id="lista"></div>
+
+    <div id="lleno" style="display:none">
+      <div class="se">
+        <h3><i class="bi bi-geo-alt"></i> Zona de Entrega</h3>
+        <select id="zona">
+          <option value="25">Ciudad de Guatemala - Q25</option>
+          <option value="35">Mixco, Fraijanes, Villa Nueva, etc. - Q35</option>
+          <option value="40" selected>Departamentos (todo el país) - Q40</option>
+        </select>
+        <div class="n"><strong>Nota:</strong> El costo de envío es base y puede variar según dimensiones. ¡Confirmamos por WhatsApp!</div>
+
+        <h3 style="margin-top:1.5rem"><i class="bi bi-credit-card"></i> Método de Pago</h3>
+        <div class="op">
+          <label><input type="radio" name="pago" value="t" checked> <span>Transferencia / Depósito Bancario</span></label>
+        </div>
+        <div class="op">
+          <label><input type="radio" name="pago" value="c"> <span>Contraentrega <b style="color:#e74c3c">(+5% en Deptos.)</b></span></label>
+        </div>
+
+        <h3 style="margin-top:1.5rem"><i class="bi bi-chat-left-text"></i> Notas del pedido</h3>
+        <textarea id="notas" placeholder="Ej. Entregar después de las 4pm o llamar al llegar..."></textarea>
+      </div>
+
+      <div class="r">
+        <div class="l"><span>Subtotal</span> <span id="sub">Q0.00</span></div>
+        <div class="l"><span>Envío estimado</span> <span id="env">Q40.00</span></div>
+        <div class="l" id="rec" style="display:none;color:#e74c3c"><span>Recargo contraentrega (5%)</span> <span id="re">Q0.00</span></div>
+        <div class="l tot"><span>Total a pagar</span> <strong id="tot">Q40.00</strong></div>
+      </div>
+
+      <button class="btn" onclick="fin()"><i class="bi bi-whatsapp"></i> Enviar pedido por WhatsApp</button>
+      <button class="btn-vaciar" onclick="vaciarCarrito()">Vaciar carrito</button>
+    </div>
+
+    <div id="vacio" style="text-align:center;padding:5rem 2rem;display:none">
+      <i class="bi bi-cart-x" style="font-size:4rem; color:#ccc"></i>
+      <h2 style="margin-top:1rem">Tu carrito está vacío</h2>
+      <p style="margin-top:0.5rem; color:var(--text-soft)">¡Aún no has agregado equipos a tu pedido!</p>
+      <a href="index.html" style="display:inline-block; margin-top:1.5rem; color:var(--accent); font-weight:700;">Ir a la tienda</a>
+    </div>
+  </div>
+
+  <button onclick="irAtras()" id="boton-volver">
+    <i class="bi bi-arrow-left-circle"></i> Volver a la tienda
+  </button>
+
+  <footer>
+    <p id="footer-text" style="font-size:0.75rem; color:var(--text-soft)"></p>
+  </footer>
+
+  <script>
+    const CONFIG = {
+      nombreNegocio: "Flamax",
+      telefonoWhatsApp: "50241084481",
+      simboloMoneda: "Q",
+      logoImg: "img/Flamax-v1.png",
+      faviconImg: "img/Flamax-v1.ico",
+      colores: {
+        primario: "#003772",
+        acento: "#0074B7"
+      }
+    };
+
+    const aplicarConfig = () => {
+      document.title = `🛒 Carrito | ${CONFIG.nombreNegocio}`;
+      document.getElementById("logo-header").src = CONFIG.logoImg;
+      document.getElementById("meta-theme-color").content = CONFIG.colores.primario;
+      document.getElementById("favicon").href = CONFIG.faviconImg;
+      document.getElementById("footer-text").innerHTML = `© 2026 <strong>${CONFIG.nombreNegocio}</strong> | Guatemala`;
+      
+      const root = document.documentElement;
+      root.style.setProperty('--primary', CONFIG.colores.primario);
+      root.style.setProperty('--accent', CONFIG.colores.acento);
+    };
+
+    aplicarConfig();
+
+    // ==========================================
+    // LÓGICA DEL CARRITO
+    // ==========================================
+    const $ = s => document.getElementById(s);
+    const zona = $('zona');
+    const notas = $('notas');
+
+    // Volver a la tienda manteniendo el estado
+    window.irAtras = () => {
+        if (document.referrer.indexOf(window.location.host) !== -1) {
+            history.back(); // Vuelve exacto a donde estaba
+        } else {
+            window.location.href = 'index.html'; // Fallback
+        }
+    };
+
+    const agrupar = () => {
+      const map = {};
+      JSON.parse(localStorage.getItem("carrito")||"[]").forEach(p => {
+        map[p.id] ? (map[p.id].c += 1, map[p.id].t += p.precio) : (map[p.id] = {...p, c:1, t:p.precio});
+      });
+      return Object.values(map);
+    };
+
+    const act = () => {
+      const items = agrupar();
+      $('lista').innerHTML = "";
+      if (!items.length) {
+        $('vacio').style.display = "block";
+        $('lleno').style.display = "none";
+        return;
+      }
+      $('vacio').style.display = "none";
+      $('lleno').style.display = "block";
+
+      items.forEach(i => {
+        const imgPath = Array.isArray(i.imagen) ? i.imagen[0] : i.imagen;
+        $('lista').innerHTML += `
+          <div class="i">
+            <div class="img-wrap">
+              <img src="${imgPath||'img/placeholder.png'}" alt="${i.titulo}">
+            </div>
+            <div class="info">
+              <h3>${i.titulo}</h3>
+              <p class="pr">${CONFIG.simboloMoneda}${i.t.toFixed(2)}</p>
+            </div>
+            <div class="stepper">
+                <button class="${i.c === 1 ? 'del' : ''}" onclick="cambiarCant('${i.id}', -1)">
+                    <i class="bi bi-${i.c === 1 ? 'trash' : 'dash'}"></i>
+                </button>
+                <div class="count">${i.c}</div>
+                <button onclick="cambiarCant('${i.id}', 1)">
+                    <i class="bi bi-plus"></i>
+                </button>
+            </div>
+          </div>`;
+      });
+      calc();
+    };
+
+    const calc = () => {
+      const items = agrupar();
+      const subtotal = items.reduce((a,b)=>a+b.t,0);
+      const envio = +zona.value;
+      const esDepartamento = envio === 40;
+      const contraentrega = document.querySelector('input[name="pago"][value="c"]').checked;
+      const recargo = (esDepartamento && contraentrega) ? (subtotal + envio) * 0.05 : 0;
+
+      $('sub').textContent = `${CONFIG.simboloMoneda}${subtotal.toFixed(2)}`;
+      $('env').textContent = `${CONFIG.simboloMoneda}${envio.toFixed(2)}`;
+      $('rec').style.display = recargo ? "flex" : "none";
+      $('re').textContent = `${CONFIG.simboloMoneda}${recargo.toFixed(2)}`;
+      $('tot').textContent = `${CONFIG.simboloMoneda}${(subtotal + envio + recargo).toFixed(2)}`;
+    };
+
+    // NUEVA FUNCIÓN: Cambiar cantidad
+    window.cambiarCant = (id, delta) => {
+        let c = JSON.parse(localStorage.getItem("carrito")||"[]");
+        if (delta > 0) {
+            // Agregar uno nuevo buscando el objeto existente
+            const p = c.find(x => x.id === id);
+            c.push({...p});
+        } else {
+            // Eliminar la primera coincidencia
+            const idx = c.findIndex(p => p.id === id);
+            if(idx > -1) c.splice(idx, 1);
+        }
+        localStorage.setItem("carrito", JSON.stringify(c));
+        act();
+    };
+
+    window.vaciarCarrito = () => {
+      if (confirm("¿Deseas vaciar todos los productos del carrito?")) {
+        localStorage.removeItem("carrito");
+        act();
+      }
+    };
+
+    window.fin = () => {
+      const items = agrupar();
+      const subtotal = items.reduce((a,b)=>a+b.t,0);
+      const envio = +zona.value;
+      const ztxt = zona.selectedOptions[0].text.split(" - ")[0];
+      const contraentrega = document.querySelector('input[name="pago"][value="c"]').checked;
+      const esDepartamento = envio === 40;
+      const recargo = (esDepartamento && contraentrega) ? (subtotal + envio) * 0.05 : 0;
+      const total = subtotal + envio + recargo;
+
+      let m = `*¡Hola ${CONFIG.nombreNegocio}!*%0AMi pedido:%0A%0A`;
+      
+      items.forEach(i => {
+        m += `• ${i.titulo} [ID: ${i.id}] (x${i.c}) - ${CONFIG.simboloMoneda}${i.t.toFixed(2)}%0A`;
+      });
+
+      m += `%0A*Subtotal:* ${CONFIG.simboloMoneda}${subtotal.toFixed(2)}`;
+      m += `%0A*Envío (${ztxt}):* ${CONFIG.simboloMoneda}${envio.toFixed(2)}`;
+      if (recargo) m += `%0A*Recargo contraentrega:* ${CONFIG.simboloMoneda}${recargo.toFixed(2)}`;
+      m += `%0A%0A*TOTAL A PAGAR: ${CONFIG.simboloMoneda}${total.toFixed(2)}*%0A`;
+      m += `%0A*Método:* ${contraentrega ? "Contraentrega" : "Transferencia Bancaria"}`;
+      if (notas.value.trim()) m += `%0A*Notas:* ${encodeURIComponent(notas.value.trim())}`;
+      
+      open(`https://wa.me/${CONFIG.telefonoWhatsApp}?text=` + m, "_blank");
+    };
+
+    zona.onchange = calc;
+    document.querySelectorAll('input[name="pago"]').forEach(r => r.onclick = calc);
+    act();
+  </script>
+</body>
+</html>

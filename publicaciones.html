@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Ads HD Pro | OrganizaGT</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3061/3061341.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1C3F60;
+            --dark: #1C3F60;
+            --bg: #eef2f7;
+            --accent: #F47C20;
+            --sidebar-w: 380px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); display: flex; height: 100vh; flex-direction: row; }
+
+        /* ---- SIDEBAR ---- */
+        .sidebar { width: var(--sidebar-w); min-width: var(--sidebar-w); background: #fff; border-right: 1px solid #dde3ee; display: flex; flex-direction: column; box-shadow: 3px 0 18px rgba(0,0,0,0.07); z-index: 10; }
+        .sidebar-header { padding: 18px 20px; background: var(--dark); color: white; }
+        .sidebar-header h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; letter-spacing: 0.05em; }
+        .sidebar-header p { font-size: 0.68rem; opacity: 0.6; margin-top: 3px; }
+        .sidebar-content { padding: 16px 18px; overflow-y: auto; flex-grow: 1; }
+
+        /* Secciones colapsables */
+        .section-block { background: #f8fafc; border: 1px solid #e8edf5; border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+        .section-block-header { padding: 10px 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--dark); user-select: none; }
+        .section-block-header:hover { background: #eef2f8; }
+        .section-block-body { padding: 12px 14px; border-top: 1px solid #e8edf5; display: none; }
+        .section-block-body.open { display: block; }
+        .section-block-header i.toggle-icon { transition: transform 0.2s; }
+        .section-block-header.open i.toggle-icon { transform: rotate(180deg); }
+
+        label { display: block; font-weight: 700; font-size: 0.68rem; color: #666; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+        input[type=text], input[type=url], select, textarea { width: 100%; padding: 9px 12px; border: 1.5px solid #dde3ee; border-radius: 7px; font-size: 0.85rem; font-family: 'DM Sans', sans-serif; background: #fff; color: #222; outline: none; transition: border-color 0.2s; }
+        input:focus, select:focus, textarea:focus { border-color: var(--dark); }
+        .form-group { margin-bottom: 12px; }
+
+        /* Color picker visible */
+        .color-picker-row { display: flex; align-items: center; gap: 10px; }
+        .color-swatch-wrap { position: relative; width: 44px; height: 44px; border-radius: 8px; overflow: hidden; border: 2px solid #dde3ee; cursor: pointer; flex-shrink: 0; }
+        .color-swatch-wrap input[type=color] { position: absolute; top: -6px; left: -6px; width: 56px; height: 56px; border: none; cursor: pointer; opacity: 1; }
+        .color-hex-display { font-size: 0.85rem; font-weight: 600; color: var(--dark); font-family: 'Space Grotesk', sans-serif; }
+        .color-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .color-preset { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: border-color 0.15s, transform 0.15s; }
+        .color-preset:hover { border-color: #555; transform: scale(1.15); }
+
+        /* Checkboxes */
+        .checkbox-group { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+        .chk-label { display: flex; align-items: center; gap: 5px; font-size: 0.75rem; font-weight: 500; color: #444; background: #fff; border: 1.5px solid #dde3ee; border-radius: 20px; padding: 4px 10px; cursor: pointer; transition: all 0.15s; }
+        .chk-label:hover { border-color: var(--dark); color: var(--dark); }
+        .chk-label input { display: none; }
+        .chk-label.active { background: var(--dark); color: #fff; border-color: var(--dark); }
+
+        /* Filtros inteligentes */
+        .filter-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        .filter-row select { flex: 1; font-size: 0.8rem; padding: 7px 10px; }
+        .filter-badge { display: inline-block; background: var(--dark); color: #fff; font-size: 0.68rem; border-radius: 12px; padding: 2px 9px; margin: 2px; font-weight: 600; }
+
+        /* Botones */
+        .btn { border: none; padding: 11px 14px; width: 100%; border-radius: 8px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 7px; font-family: 'DM Sans', sans-serif; transition: opacity 0.15s, transform 0.1s; }
+        .btn:active { transform: scale(0.98); }
+        .btn:hover { opacity: 0.9; }
+        .btn-primary { background: var(--dark); color: white; }
+        .btn-success { background: #1a8a3d; color: white; }
+        .btn-ai { background: #6c3fd6; color: white; }
+        .btn-pdf { background: #c0392b; color: white; }
+        .btn-copy { background: #555; color: white; }
+        .btn-sm { padding: 8px 12px; font-size: 0.7rem; }
+
+        /* Copy/hashtags */
+        .copy-section { background: #fdfaf0; padding: 12px; border-radius: 10px; border: 1px solid #faead1; margin-top: 4px; }
+        #copyTextArea { height: 130px; font-size: 0.78rem; border: 1px solid #ddd; background: white; resize: vertical; margin-bottom: 8px; }
+        .hashtag-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; max-height: 90px; overflow-y: auto; }
+        .htag { background: #eef2f8; color: var(--dark); font-size: 0.7rem; border-radius: 12px; padding: 3px 9px; cursor: pointer; border: 1px solid #dde3ee; font-weight: 500; }
+        .htag:hover { background: var(--dark); color: #fff; }
+
+        /* Logo posición manual */
+        .logo-pos-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 4px; width: 90px; }
+        .logo-pos-btn { aspect-ratio: 1; border: 1.5px solid #dde3ee; border-radius: 5px; cursor: pointer; background: #f8fafc; transition: all 0.15s; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #888; }
+        .logo-pos-btn:hover, .logo-pos-btn.active { background: var(--dark); border-color: var(--dark); color: #fff; }
+        .logo-size-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+        .logo-size-row input[type=range] { flex: 1; }
+        .logo-controls { display: flex; align-items: flex-start; gap: 12px; }
+        .logo-drag-tip { font-size: 0.7rem; color: #888; margin-top: 6px; line-height: 1.4; }
+
+        /* Filtro disponibilidad */
+        .disp-filter-row { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+        .btn-disp { padding: 5px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; cursor: pointer; border: 1.5px solid #dde3ee; background: #f8fafc; color: #444; display: flex; align-items: center; gap: 5px; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+        .btn-disp:hover { border-color: var(--dark); color: var(--dark); }
+        .btn-disp.active-all  { background: var(--dark); color: white; border-color: var(--dark); }
+        .btn-disp.active-disp { background: #e8f5e9; color: #1a8a3d; border-color: #1a8a3d; }
+        .btn-disp.active-ago  { background: #ffebee; color: #c0392b; border-color: #c0392b; }
+
+        /* Badge agotado en select */
+        option.agotado-opt { color: #c0392b; }
+        .status-bar { font-size: 0.72rem; color: #888; text-align: center; padding: 6px 0; min-height: 22px; }
+        .status-bar.ok { color: #1a8a3d; font-weight: 600; }
+        .status-bar.err { color: #c0392b; font-weight: 600; }
+        .status-bar.loading { color: var(--dark); }
+
+        /* Workspace */
+        .workspace { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 16px; background: #cbd5e0; position: relative; }
+        .canvas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; width: 100%; }
+        .canvas-card { background: white; padding: 10px; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); position: relative; }
+        .canvas-card canvas { width: 100%; height: auto; border-radius: 8px; display: block; background: #fff; cursor: crosshair; }
+        .canvas-label { font-size: 0.7rem; color: #888; text-align: center; margin-top: 6px; font-family: 'Space Grotesk', sans-serif; }
+        .empty-state { color: #aab; text-align: center; padding: 80px 40px; }
+        .empty-state i { font-size: 3rem; opacity: 0.3; display: block; margin-bottom: 12px; }
+        .empty-state p { font-size: 0.9rem; }
+
+        /* ── Búsqueda rápida ── */
+        .search-wrap { position: relative; margin-bottom: 8px; }
+        .search-wrap .si { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #aaa; font-size: 0.82rem; pointer-events: none; }
+        .search-wrap input { padding-left: 30px !important; }
+        .btn-clear-srch { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #bbb; font-size: 0.82rem; padding: 0; line-height: 1; display: none; }
+        .btn-clear-srch:hover { color: #c0392b; }
+        #searchCount { font-size: 0.67rem; color: var(--accent); font-weight: 700; min-height: 13px; margin-bottom: 4px; }
+
+        /* ── Canvas card mejorado ── */
+        .canvas-card { background: #1e293b; padding: 12px; border-radius: 16px; box-shadow: 0 12px 32px rgba(0,0,0,0.22); position: relative; border: 1px solid rgba(255,255,255,0.06); transition: transform 0.18s ease, box-shadow 0.18s ease; }
+        .canvas-card:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(0,0,0,0.28); }
+        .canvas-card canvas { width: 100%; height: auto; border-radius: 10px; display: block; cursor: crosshair; }
+        .canvas-label { font-size: 0.68rem; color: #94a3b8; text-align: center; margin-top: 8px; font-family: 'Space Grotesk', sans-serif; letter-spacing: 0.04em; }
+
+        /* ── Botones de descarga por imagen ── */
+        .card-actions { display: flex; gap: 6px; margin-top: 8px; }
+        .btn-dl-solo { flex: 1; padding: 7px 0; border: none; border-radius: 8px; font-size: 0.7rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; font-family: 'DM Sans', sans-serif; letter-spacing: 0.03em; transition: opacity 0.15s, transform 0.1s; }
+        .btn-dl-solo:active { transform: scale(0.97); }
+        .btn-dl-png { background: #1a8a3d; color: white; }
+        .btn-dl-png:hover { opacity: 0.88; }
+
+        /* ── Sidebar header mejorado ── */
+        .sidebar-header { padding: 20px 20px 16px; background: linear-gradient(135deg, #1C3F60 0%, #0f2942 100%); color: white; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .sidebar-header h2 { font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.07em; }
+        .sidebar-header p { font-size: 0.67rem; opacity: 0.55; margin-top: 3px; letter-spacing: 0.04em; }
+
+        /* ── Status bar mejorado ── */
+        .status-bar { font-size: 0.71rem; color: #888; text-align: center; padding: 6px 10px; min-height: 26px; background: #f0f4fa; border-radius: 8px; margin-bottom: 4px; border: 1px solid #e8edf5; transition: background 0.2s; }
+        .status-bar.ok { color: #1a8a3d; font-weight: 700; background: #f0faf4; border-color: #c3e6cb; }
+        .status-bar.err { color: #c0392b; font-weight: 700; background: #fff0f0; border-color: #f5c6cb; }
+        .status-bar.loading { color: var(--dark); font-weight: 600; background: #eef2fb; border-color: #c5d0e8; }
+
+        /* ── Workspace mejorado ── */
+        .workspace { flex-grow: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 16px; background: linear-gradient(160deg, #1a2332 0%, #0f1923 100%); position: relative; }
+        .canvas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; width: 100%; }
+        .empty-state { color: #4a5568; text-align: center; padding: 80px 40px; }
+        .empty-state i { font-size: 3rem; opacity: 0.2; display: block; margin-bottom: 14px; }
+        .empty-state p { font-size: 0.9rem; line-height: 1.6; }
+
+        /* ── Section blocks más suaves ── */
+        .section-block { background: #f9fbff; border: 1px solid #e4eaf5; border-radius: 11px; margin-bottom: 10px; overflow: hidden; }
+        .section-block-header { padding: 10px 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--dark); user-select: none; }
+        .section-block-header:hover { background: #eef3fc; }
+
+        /* ── Botones principales con sombra ── */
+        .btn-success { background: linear-gradient(135deg, #1a8a3d, #177535); color: white; box-shadow: 0 3px 10px rgba(26,138,61,0.2); }
+        .btn-pdf     { background: linear-gradient(135deg, #c0392b, #a93226); color: white; box-shadow: 0 3px 10px rgba(192,57,43,0.2); }
+        .btn-primary { background: linear-gradient(135deg, #1C3F60, #163352); color: white; box-shadow: 0 3px 10px rgba(28,63,96,0.2); }
+        .btn-ai      { background: linear-gradient(135deg, #6c3fd6, #5930b8); color: white; box-shadow: 0 3px 10px rgba(108,63,214,0.2); }
+
+        /* ── Exportar ZIP destacado ── */
+        .btn-zip { background: linear-gradient(135deg, #007BC4, #005e97); color: white; box-shadow: 0 3px 10px rgba(0,123,196,0.2); }
+        .export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .export-grid .btn { margin-bottom: 0; }
+        .btn-full { grid-column: 1 / -1; }
+
+        @media (max-width: 850px) {
+            body { flex-direction: column; overflow: auto; height: auto; }
+            .sidebar { width: 100%; min-width: unset; border-right: none; border-bottom: 1px solid #ddd; }
+            .workspace { width: 100%; padding: 16px 8px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        <h2 id="js-brand-name">MARKETING TOOL HD</h2>
+        <p id="js-brand-tagline">OrganizaGT Business</p>
+    </div>
+
+    <div class="sidebar-content">
+        <div class="status-bar" id="statusBar">Listo.</div>
+
+        <!-- CATÁLOGO -->
+        <div class="section-block">
+            <div class="section-block-header open" onclick="toggleBlock(this)">
+                <span><i class="bi bi-cloud-download" style="margin-right:6px"></i>Catálogo CSV</span>
+                <i class="bi bi-chevron-up toggle-icon"></i>
+            </div>
+            <div class="section-block-body open">
+                <div class="form-group">
+                    <label>URL del CSV</label>
+                    <input type="text" id="csvUrl" value="">
+                </div>
+                <button class="btn btn-primary" onclick="cargarCatalogo()"><i class="bi bi-arrow-repeat"></i> Sincronizar</button>
+            </div>
+        </div>
+
+        <!-- FILTROS INTELIGENTES -->
+        <div class="section-block">
+            <div class="section-block-header open" onclick="toggleBlock(this)">
+                <span><i class="bi bi-funnel" style="margin-right:6px"></i>Filtros inteligentes</span>
+                <i class="bi bi-chevron-up toggle-icon"></i>
+            </div>
+            <div class="section-block-body open">
+                <div class="form-group">
+                    <label>Buscar producto</label>
+                    <div class="search-wrap">
+                        <i class="bi bi-search si"></i>
+                        <input type="text" id="searchInput" placeholder="Código, nombre, descripción..." oninput="onSearchInput(this)">
+                        <button class="btn-clear-srch" id="btnClearSrch" onclick="clearSearch()" title="Limpiar"><i class="bi bi-x-circle-fill"></i></button>
+                    </div>
+                    <div id="searchCount"></div>
+                </div>
+                <div class="form-group">
+                    <label>Disponibilidad</label>
+                    <div class="disp-filter-row">
+                        <button class="btn-disp active-all" id="dispTodos"      onclick="setFiltroDisp('todos')"><i class="bi bi-grid"></i> Todos</button>
+                        <button class="btn-disp"            id="dispDisponibles" onclick="setFiltroDisp('disponibles')"><i class="bi bi-check-circle"></i> Disponibles</button>
+                        <button class="btn-disp"            id="dispAgotados"   onclick="setFiltroDisp('agotados')"><i class="bi bi-x-circle"></i> Agotados</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select id="catFilter" onchange="aplicarFiltros()">
+                        <option value="">— Todas —</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Subcategoría</label>
+                    <select id="subCatFilter" onchange="aplicarFiltros()">
+                        <option value="">— Todas —</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Producto</label>
+                    <select id="productSelect" onchange="actualizarInterfaz()">
+                        <option value="">— Selecciona —</option>
+                    </select>
+                </div>
+                <div id="batchInfo" style="display:none; font-size:0.72rem; color:#555; background:#eef2f8; border-radius:7px; padding:8px 10px; margin-bottom:8px; line-height:1.5;">
+                    <i class="bi bi-info-circle"></i> <span id="batchInfoText"></span>
+                </div>
+                <button class="btn btn-primary btn-sm" id="btnGenerarTodos" style="display:none;" onclick="generarTodosLosProductos()">
+                    <i class="bi bi-images"></i> Generar imágenes de todos
+                </button>
+            </div>
+        </div>
+
+        <!-- FORMATO -->
+        <div class="section-block">
+            <div class="section-block-header open" onclick="toggleBlock(this)">
+                <span><i class="bi bi-aspect-ratio" style="margin-right:6px"></i>Plataforma y formato</span>
+                <i class="bi bi-chevron-up toggle-icon"></i>
+            </div>
+            <div class="section-block-body open">
+                <select id="platformSelect" onchange="actualizarInterfaz()">
+                    <option value="ig_post">Instagram / Facebook (1:1)</option>
+                    <option value="tiktok">TikTok / Reels / Stories (9:16)</option>
+                    <option value="fb_ads">Facebook Ads (16:9)</option>
+                    <option value="ig_portrait">Instagram Portrait (4:5)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- QUÉ MOSTRAR -->
+        <div class="section-block">
+            <div class="section-block-header open" onclick="toggleBlock(this)">
+                <span><i class="bi bi-eye" style="margin-right:6px"></i>Elementos visibles</span>
+                <i class="bi bi-chevron-up toggle-icon"></i>
+            </div>
+            <div class="section-block-body open">
+                <div class="checkbox-group" id="chkGroup">
+                    <label class="chk-label active" data-id="showTitle"><input type="checkbox" id="showTitle" checked> Título</label>
+                    <label class="chk-label active" data-id="showCat"><input type="checkbox" id="showCat" checked> Categoría</label>
+                    <label class="chk-label active" data-id="showSub"><input type="checkbox" id="showSub" checked> SubCat</label>
+                    <label class="chk-label active" data-id="showPrice"><input type="checkbox" id="showPrice" checked> Precio</label>
+                    <label class="chk-label" data-id="showWeb"><input type="checkbox" id="showWeb"> Web</label>
+                    <label class="chk-label" data-id="showWA"><input type="checkbox" id="showWA"> WhatsApp</label>
+                </div>
+                <div class="form-group">
+                    <label>Link Web / Catálogo</label>
+                    <input type="text" id="userWeb" placeholder="www.tuweb.com" oninput="actualizarInterfaz()">
+                </div>
+                <div class="form-group">
+                    <label>WhatsApp</label>
+                    <input type="text" id="userWA" placeholder="502XXXXXXXX" oninput="actualizarInterfaz()">
+                </div>
+            </div>
+        </div>
+
+        <!-- COLOR DE MARCA -->
+        <div class="section-block">
+            <div class="section-block-header open" onclick="toggleBlock(this)">
+                <span><i class="bi bi-palette" style="margin-right:6px"></i>Color de marca</span>
+                <i class="bi bi-chevron-up toggle-icon"></i>
+            </div>
+            <div class="section-block-body open">
+                <div class="color-picker-row">
+                    <div class="color-swatch-wrap" id="colorSwatch">
+                        <input type="color" id="accentColor" value="#F47C20" onchange="syncColor(this.value); actualizarInterfaz()">
+                    </div>
+                    <div>
+                        <div class="color-hex-display" id="colorHexDisplay">#F47C20</div>
+                        <div style="font-size:0.68rem;color:#888;margin-top:2px;">Clic para cambiar</div>
+                    </div>
+                </div>
+                <div class="color-presets" id="colorPresets">
+                    <!-- se llenan con JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- LOGO -->
+        <div class="section-block">
+            <div class="section-block-header" onclick="toggleBlock(this)">
+                <span><i class="bi bi-image" style="margin-right:6px"></i>Logo — posición y tamaño</span>
+                <i class="bi bi-chevron-down toggle-icon"></i>
+            </div>
+            <div class="section-block-body">
+                <div class="logo-controls">
+                    <div>
+                        <div style="font-size:0.68rem;color:#888;margin-bottom:6px;font-weight:700;text-transform:uppercase;">Posición rápida</div>
+                        <div class="logo-pos-grid" id="logoPosGrid">
+                            <div class="logo-pos-btn" data-pos="tl" title="Arriba Izq">↖</div>
+                            <div class="logo-pos-btn" data-pos="tc" title="Arriba Centro">↑</div>
+                            <div class="logo-pos-btn" data-pos="tr" title="Arriba Der">↗</div>
+                            <div class="logo-pos-btn" data-pos="ml" title="Medio Izq">←</div>
+                            <div class="logo-pos-btn" data-pos="mc" title="Centro">⊙</div>
+                            <div class="logo-pos-btn" data-pos="mr" title="Medio Der">→</div>
+                            <div class="logo-pos-btn" data-pos="bl" title="Abajo Izq">↙</div>
+                            <div class="logo-pos-btn" data-pos="bc" title="Abajo Centro">↓</div>
+                            <div class="logo-pos-btn active" data-pos="br" title="Abajo Der">↘</div>
+                        </div>
+                    </div>
+                    <div style="flex:1">
+                        <div style="font-size:0.68rem;color:#888;margin-bottom:4px;font-weight:700;text-transform:uppercase;">Tamaño (%)</div>
+                        <div class="logo-size-row">
+                            <input type="range" id="logoSize" min="5" max="40" value="14" oninput="document.getElementById('logoSizeVal').textContent=this.value+'%'; actualizarInterfaz()">
+                            <span id="logoSizeVal" style="font-size:0.75rem;font-weight:600;color:var(--dark);min-width:32px;">14%</span>
+                        </div>
+                        <div class="logo-drag-tip"><i class="bi bi-hand-index"></i> También puedes arrastrar el logo directamente sobre la imagen.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COPY Y HASHTAGS -->
+        <div class="section-block">
+            <div class="section-block-header open" onclick="toggleBlock(this)">
+                <span><i class="bi bi-chat-quote" style="margin-right:6px"></i>Copy y hashtags</span>
+                <i class="bi bi-chevron-up toggle-icon"></i>
+            </div>
+            <div class="section-block-body open">
+                <textarea id="copyTextArea" readonly></textarea>
+                <button class="btn btn-ai btn-sm" onclick="buscarHashtags()"><i class="bi bi-tags"></i> Sugerir 10 hashtags relacionados</button>
+                <div class="hashtag-tags" id="hashtagTags"></div>
+                <button class="btn btn-copy btn-sm" style="margin-top:8px;" onclick="copiarAlPortapapeles()"><i class="bi bi-clipboard"></i> Copiar texto completo</button>
+            </div>
+        </div>
+
+        <!-- DESCARGAR -->
+        <div class="section-block">
+            <div class="section-block-header open" onclick="toggleBlock(this)">
+                <span><i class="bi bi-download" style="margin-right:6px"></i>Exportar</span>
+                <i class="bi bi-chevron-up toggle-icon"></i>
+            </div>
+            <div class="section-block-body open">
+                <div class="export-grid">
+                    <button class="btn btn-zip" id="btnDescargar" onclick="descargarTodo()"><i class="bi bi-file-zip"></i> ZIP</button>
+                    <button class="btn btn-pdf" id="btnPDF" onclick="exportarPDF()"><i class="bi bi-file-earmark-pdf"></i> PDF</button>
+                    <button class="btn btn-success btn-full" onclick="descargarIndividual()"><i class="bi bi-download"></i> Descargar imagen visible</button>
+                </div>
+                <div style="font-size:0.67rem;color:#aaa;margin-top:6px;text-align:center;">ZIP = todas · Individual = imagen activa</div>
+            </div>
+        </div>
+
+    </div><!-- /sidebar-content -->
+</div><!-- /sidebar -->
+
+<div class="workspace" id="previewArea">
+    <div class="empty-state" id="emptyState">
+        <i class="bi bi-grid-3x3-gap"></i>
+        <p>Sincroniza tu catálogo y selecciona un producto para generar las imágenes.</p>
+    </div>
+</div>
+
+<!-- PDF lib (cargada bajo demanda) -->
+<script>
+// ===================== CONFIG =====================
+const COMERCIAL_CONFIG = {
+    tituloPagina: "Social Ads HD Pro | Flamax",
+    favicon: "/img/Flamax-v1.ico",
+    nombreHeader: "MARKETING TOOL HD",
+    tagline: "EKIPRO Business",
+    logoParaImagen: "/img/Flamax-v1.png",
+    csvDefault: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTwVpHIAUk9o5t1bGr2TEn7TcSLvf_XGbX2-9irqECUDFHgdm_TjSSifw4VDKHTfMiX-dZmNz6cqXk_/pub?output=csv",
+    colorDefault: "#007BC4",
+    hashtagsBase: "#Guatemala #Ventas #TiendaOnline #EnviosGuate #PagoContraEntrega #Ofertas"
+};
+
+const COLOR_PRESETS = ["#007BC4","#F47C20","#E91E63","#4CAF50","#9C27B0","#FF5722","#009688","#F44336","#1C3F60","#FFD600","#00BCD4","#FF9800"];
+const PROXY = "https://images.weserv.nl/?url=";
+let productosGlobal = [];
+let filtroDisp = "todos";
+let logoPos = { x: null, y: null, preset: "tl" }; // null = usa preset
+let logoSizeRatio = 0.14;
+let isDraggingLogo = false;
+let dragOffsetX = 0, dragOffsetY = 0;
+let activeCanvasForDrag = null;
+let activePForDrag = null;
+
+// ===================== INIT =====================
+window.onload = () => {
+    document.title = COMERCIAL_CONFIG.tituloPagina;
+    try { document.querySelector("link[rel='icon']").href = COMERCIAL_CONFIG.favicon; } catch(e){}
+    document.getElementById('js-brand-name').innerText = COMERCIAL_CONFIG.nombreHeader;
+    document.getElementById('js-brand-tagline').innerText = COMERCIAL_CONFIG.tagline;
+    document.getElementById('csvUrl').value = COMERCIAL_CONFIG.csvDefault;
+    document.getElementById('accentColor').value = COMERCIAL_CONFIG.colorDefault;
+    syncColor(COMERCIAL_CONFIG.colorDefault);
+    buildColorPresets();
+    setupCheckboxes();
+    setupLogoPosGrid();
+};
+
+// ---- Filtro disponibilidad ----
+function setFiltroDisp(val) {
+    filtroDisp = val;
+    document.getElementById('dispTodos').className       = 'btn-disp' + (val === 'todos'        ? ' active-all'  : '');
+    document.getElementById('dispDisponibles').className = 'btn-disp' + (val === 'disponibles'  ? ' active-disp' : '');
+    document.getElementById('dispAgotados').className    = 'btn-disp' + (val === 'agotados'     ? ' active-ago'  : '');
+    aplicarFiltros();
+}
+
+
+// ---- Secciones colapsables ----
+function toggleBlock(header) {
+    const body = header.nextElementSibling;
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    header.classList.toggle('open', !isOpen);
+}
+
+// ---- Color de marca visible ----
+function syncColor(val) {
+    document.getElementById('colorSwatch').style.background = val;
+    document.getElementById('colorHexDisplay').textContent = val.toUpperCase();
+    document.getElementById('accentColor').value = val;
+}
+function buildColorPresets() {
+    const wrap = document.getElementById('colorPresets');
+    COLOR_PRESETS.forEach(c => {
+        const d = document.createElement('div');
+        d.className = 'color-preset';
+        d.style.background = c;
+        d.title = c;
+        d.onclick = () => { syncColor(c); actualizarInterfaz(); };
+        wrap.appendChild(d);
+    });
+}
+
+// ---- Checkboxes pill style ----
+function setupCheckboxes() {
+    document.querySelectorAll('.chk-label').forEach(lbl => {
+        const chk = lbl.querySelector('input');
+        lbl.classList.toggle('active', chk.checked);
+        chk.addEventListener('change', () => {
+            lbl.classList.toggle('active', chk.checked);
+            actualizarInterfaz();
+        });
+    });
+}
+
+// ---- Grid posición logo ----
+function setupLogoPosGrid() {
+    document.querySelectorAll('.logo-pos-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.logo-pos-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            logoPos.preset = btn.dataset.pos;
+            logoPos.x = null; logoPos.y = null; // reset drag
+            actualizarInterfaz();
+        });
+    });
+    document.getElementById('logoSize').addEventListener('input', () => {
+        logoSizeRatio = parseInt(document.getElementById('logoSize').value) / 100;
+    });
+}
+
+// ===================== CSV =====================
+function csvToArray(str) {
+    const pat = new RegExp("(\\,|\\r?\\n|\\r|^)(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|([^\\,\\r\\n]*))", "gi");
+    let data = [[]], m;
+    while ((m = pat.exec(str))) {
+        if (m[1].length && m[1] !== ",") data.push([]);
+        data[data.length-1].push(m[2] ? m[2].replace(/""/g,'"') : m[3]);
+    }
+    return data;
+}
+
+async function cargarCatalogo() {
+    const url = document.getElementById('csvUrl').value;
+    setStatus("Cargando catálogo...", "loading");
+    try {
+        const res = await fetch(`${url}&t=${Date.now()}`);
+        const text = await res.text();
+        const rawRows = csvToArray(text);
+        productosGlobal = rawRows.slice(1).filter(r => r.length > 1 && r[0] !== "").map(r => {
+            const nombre = r[1] || "";
+            const partes = nombre.split('|');
+            return {
+                id: r[0],
+                tituloDisplay: partes[0].trim(),
+                tituloGancho: partes[1] ? partes[1].trim() : partes[0].trim(),
+                imgP: r[2], imgG: r[3],
+                cat: r[5] || "", subCat: r[7] || "",
+                desc: r[8] || "", precio: r[9] || "",
+                estado: (r[10] || "DISPONIBLE").toUpperCase().trim()
+            };
+        });
+        productosGlobal.sort((a,b) => a.subCat.localeCompare(b.subCat));
+        poblarFiltros();
+        setStatus(`✅ ${productosGlobal.length} productos cargados`, "ok");
+    } catch(e) { setStatus("❌ Error al cargar el CSV", "err"); }
+}
+
+function poblarFiltros() {
+    const cats = [...new Set(productosGlobal.map(p => p.cat).filter(Boolean))].sort();
+    const subCats = [...new Set(productosGlobal.map(p => p.subCat).filter(Boolean))].sort();
+    fillSelect('catFilter', cats);
+    fillSelect('subCatFilter', subCats);
+    aplicarFiltros();
+}
+
+function fillSelect(id, options) {
+    const sel = document.getElementById(id);
+    const prev = sel.value;
+    sel.innerHTML = '<option value="">— Todas —</option>';
+    options.forEach(o => {
+        const opt = document.createElement('option');
+        opt.value = o; opt.textContent = o;
+        sel.appendChild(opt);
+    });
+    if (prev) sel.value = prev;
+}
+
+function aplicarFiltros() {
+    const cat = document.getElementById('catFilter').value;
+    const sub = document.getElementById('subCatFilter').value;
+
+    if (cat) {
+        const filtSubs = [...new Set(productosGlobal.filter(p => p.cat === cat).map(p => p.subCat).filter(Boolean))].sort();
+        fillSelect('subCatFilter', filtSubs);
+    }
+
+    let filtrados = productosGlobal;
+    if (cat) filtrados = filtrados.filter(p => p.cat === cat);
+    if (sub) filtrados = filtrados.filter(p => p.subCat === sub);
+    if (filtroDisp === 'disponibles') filtrados = filtrados.filter(p => p.estado !== 'AGOTADO');
+    if (filtroDisp === 'agotados')    filtrados = filtrados.filter(p => p.estado === 'AGOTADO');
+    const q = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+    if (q) {
+        filtrados = filtrados.filter(p =>
+            p.id.toLowerCase().includes(q) ||
+            p.tituloDisplay.toLowerCase().includes(q) ||
+            p.tituloGancho.toLowerCase().includes(q) ||
+            p.desc.toLowerCase().includes(q) ||
+            p.subCat.toLowerCase().includes(q) ||
+            p.cat.toLowerCase().includes(q)
+        );
+        document.getElementById('searchCount').textContent = `${filtrados.length} resultado${filtrados.length !== 1 ? 's' : ''}`;
+    } else {
+        const sc = document.getElementById('searchCount');
+        if (sc) sc.textContent = '';
+    }
+
+    const select = document.getElementById('productSelect');
+    const prevVal = select.value;
+    select.innerHTML = '<option value="">— Ver todos (' + filtrados.length + ') —</option>';
+    let currentSub = "", group = null;
+    filtrados.forEach(p => {
+        if (p.subCat !== currentSub) {
+            currentSub = p.subCat;
+            group = document.createElement('optgroup');
+            group.label = currentSub.toUpperCase();
+            select.appendChild(group);
+        }
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.estado === 'AGOTADO' ? `⛔ ${p.tituloDisplay}` : p.tituloDisplay;
+        if (p.estado === 'AGOTADO') opt.className = 'agotado-opt';
+        (group || select).appendChild(opt);
+    });
+    if (prevVal) select.value = prevVal;
+
+    // Mostrar/ocultar botón batch
+    actualizarBatchUI(filtrados, cat, sub);
+    actualizarInterfaz();
+}
+
+function actualizarBatchUI(filtrados, cat, sub) {
+    const btnBatch = document.getElementById('btnGenerarTodos');
+    const batchInfo = document.getElementById('batchInfo');
+    const batchInfoText = document.getElementById('batchInfoText');
+    const productoSeleccionado = document.getElementById('productSelect').value;
+
+    if ((cat || sub) && filtrados.length > 1 && !productoSeleccionado) {
+        const scope = sub ? `subcategoría "${sub}"` : `categoría "${cat}"`;
+        batchInfoText.textContent = `${filtrados.length} productos en ${scope}. Puedes generar todas las imágenes a la vez.`;
+        batchInfo.style.display = 'block';
+        btnBatch.style.display = 'flex';
+        btnBatch.textContent = '';
+        btnBatch.innerHTML = `<i class="bi bi-images"></i> Generar ${filtrados.length} productos`;
+    } else {
+        batchInfo.style.display = 'none';
+        btnBatch.style.display = 'none';
+    }
+}
+
+// ===================== RENDER =====================
+function actualizarInterfaz() {
+    const cat = document.getElementById('catFilter').value;
+    const sub = document.getElementById('subCatFilter').value;
+    const prod = document.getElementById('productSelect').value;
+
+    // Recalcular productos filtrados para batch UI
+    let filtrados = productosGlobal;
+    if (cat) filtrados = filtrados.filter(p => p.cat === cat);
+    if (sub) filtrados = filtrados.filter(p => p.subCat === sub);
+    actualizarBatchUI(filtrados, cat, sub);
+
+    renderizarPublicidad();
+    generarCopyCompleto();
+}
+
+function setStatus(msg, type="") {
+    const bar = document.getElementById('statusBar');
+    bar.textContent = msg;
+    bar.className = "status-bar " + type;
+}
+
+async function renderizarPublicidad() {
+    const id = document.getElementById('productSelect').value;
+    const platform = document.getElementById('platformSelect').value;
+    const color = document.getElementById('accentColor').value;
+    const area = document.getElementById('previewArea');
+    const p = productosGlobal.find(x => x.id === id);
+
+    area.innerHTML = "";
+    if (!p) {
+        area.innerHTML = '<div class="empty-state"><i class="bi bi-grid-3x3-gap"></i><p>Sincroniza tu catálogo y selecciona un producto para generar las imágenes.</p></div>';
+        return;
+    }
+
+    let imagenes = [p.imgP];
+    if (p.imgG) {
+        const gal = p.imgG.split('|').map(u => u.trim()).filter(u => u);
+        imagenes = [...imagenes, ...gal];
+    }
+
+    const grid = document.createElement('div');
+    grid.className = "canvas-grid";
+    area.appendChild(grid);
+
+    for (let [index, url] of imagenes.entries()) {
+        if (!url) continue;
+        const card = document.createElement('div');
+        card.className = "canvas-card";
+        const canvas = document.createElement('canvas');
+        card.appendChild(canvas);
+        const lbl = document.createElement('div');
+        lbl.className = "canvas-label";
+        lbl.textContent = `Img ${index+1}/${imagenes.length} · ${getPlatformLabel(platform)}`;
+        card.appendChild(lbl);
+        // Botón descarga individual por card
+        const actions = document.createElement('div');
+        actions.className = 'card-actions';
+        const btnDl = document.createElement('button');
+        btnDl.className = 'btn-dl-solo btn-dl-png';
+        btnDl.innerHTML = '<i class="bi bi-download"></i> Descargar PNG';
+        btnDl.onclick = () => bajarCanvas(canvas, `img${index+1}_${p.tituloDisplay}`);
+        actions.appendChild(btnDl);
+        card.appendChild(actions);
+        grid.appendChild(card);
+        await dibujarArte(canvas, url, p, platform, color);
+        setupLogoInteraction(canvas, p, platform, color);
+    }
+}
+
+function getPlatformLabel(p) {
+    return { ig_post:"Instagram 1:1", tiktok:"TikTok 9:16", fb_ads:"Facebook Ads 16:9", ig_portrait:"Portrait 4:5" }[p] || p;
+}
+
+// Calcula posición del logo según preset o drag
+function getLogoCoords(w, h, logoW, logoH) {
+    if (logoPos.x !== null && logoPos.y !== null) {
+        return { x: logoPos.x, y: logoPos.y };
+    }
+    const pad = 40;
+    const map = {
+        tl: { x: pad, y: pad },
+        tc: { x: (w-logoW)/2, y: pad },
+        tr: { x: w-logoW-pad, y: pad },
+        ml: { x: pad, y: (h-logoH)/2 },
+        mc: { x: (w-logoW)/2, y: (h-logoH)/2 },
+        mr: { x: w-logoW-pad, y: (h-logoH)/2 },
+        bl: { x: pad, y: h-logoH-pad },
+        bc: { x: (w-logoW)/2, y: h-logoH-pad },
+        br: { x: w-logoW-pad, y: h-logoH-pad },
+    };
+    return map[logoPos.preset] || map.tl;
+}
+
+async function dibujarArte(canvas, imgUrl, p, platform, color) {
+    canvas._srcUrl = imgUrl;
+    const ctx = canvas.getContext('2d');
+    const showTitle  = document.getElementById('showTitle').checked;
+    const showCat    = document.getElementById('showCat').checked;
+    const showSub    = document.getElementById('showSub').checked;
+    const showWeb    = document.getElementById('showWeb').checked;
+    const showWA     = document.getElementById('showWA').checked;
+    const showPrice  = document.getElementById('showPrice').checked;
+    const userWeb    = document.getElementById('userWeb').value;
+    const userWA     = document.getElementById('userWA').value;
+
+    let w = 1080, h = 1080;
+    if (platform === 'tiktok')      { w = 1080; h = 1920; }
+    if (platform === 'fb_ads')      { w = 1200; h = 630; }
+    if (platform === 'ig_portrait') { w = 1080; h = 1350; }
+
+    canvas.width = w; canvas.height = h;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    ctx.fillStyle = "#1a1a2e";
+    ctx.fillRect(0,0,w,h);
+
+    try {
+        const img = await cargarImg(imgUrl);
+        const scale = Math.max(w/img.width, h/img.height);
+        const ix = (w/2)-(img.width*scale/2);
+        const iy = (h/2)-(img.height*scale/2);
+        ctx.drawImage(img, ix, iy, img.width*scale, img.height*scale);
+    } catch(e) {}
+
+    // Gradientes
+    const gradBot = ctx.createLinearGradient(0, h, 0, h*0.45);
+    gradBot.addColorStop(0, "rgba(0,0,0,0.88)");
+    gradBot.addColorStop(1, "transparent");
+    ctx.fillStyle = gradBot; ctx.fillRect(0, h*0.35, w, h*0.65);
+
+    const gradTop = ctx.createLinearGradient(0, 0, 0, 260);
+    gradTop.addColorStop(0, "rgba(0,0,0,0.45)");
+    gradTop.addColorStop(1, "transparent");
+    ctx.fillStyle = gradTop; ctx.fillRect(0, 0, w, 260);
+
+    // Barra de color de marca (izquierda)
+    ctx.fillStyle = color;
+    ctx.fillRect(0, h*0.6, 8, h*0.4);
+
+    // Categorías top derecha
+    ctx.textAlign = "right";
+    let offsetTop = 55;
+    if (showSub && p.subCat) {
+        ctx.fillStyle = "rgba(255,255,255,0.95)";
+        ctx.font = `bold ${Math.round(w*0.03)}px Arial`;
+        ctx.fillText(p.subCat.toUpperCase(), w-45, offsetTop);
+        offsetTop += Math.round(w*0.035);
+    }
+    if (showCat && p.cat) {
+        ctx.fillStyle = "rgba(255,255,255,0.65)";
+        ctx.font = `italic ${Math.round(w*0.026)}px Arial`;
+        ctx.fillText(p.cat, w-45, offsetTop);
+    }
+
+    // Título y precio (inferior izquierda)
+    ctx.textAlign = "left";
+    const pad = 55;
+    let yBot = h - 55;
+    if (showPrice && p.precio) {
+        ctx.fillStyle = color;
+        ctx.font = `bold ${Math.round(w*0.093)}px Arial`;
+        ctx.fillText("Q" + p.precio, pad, yBot);
+        yBot -= Math.round(w*0.1);
+    }
+    if (showTitle && p.tituloGancho) {
+        ctx.fillStyle = "white";
+        let txt = p.tituloGancho.toUpperCase();
+        let fs = Math.round(w*0.056);
+        ctx.font = `bold ${fs}px Arial`;
+        while (ctx.measureText(txt).width > w*0.58 && fs > 18) {
+            fs -= 2; ctx.font = `bold ${fs}px Arial`;
+        }
+        ctx.fillText(txt, pad, yBot);
+    }
+
+    // Contacto inferior derecha
+    ctx.textAlign = "right";
+    let offsetBot = 55;
+    const fsCont = Math.round(w * 0.028);
+    if (showWA && userWA) {
+        ctx.fillStyle = "#25D366";
+        ctx.font = `bold ${fsCont}px Arial`;
+        ctx.fillText("📲 " + userWA, w-45, h-offsetBot);
+        offsetBot += fsCont + 10;
+    }
+    if (showWeb && userWeb) {
+        ctx.fillStyle = "white";
+        ctx.font = `${fsCont}px Arial`;
+        ctx.fillText("🛒 " + userWeb, w-45, h-offsetBot);
+    }
+
+    // Logo
+    try {
+        const logo = await cargarImg(COMERCIAL_CONFIG.logoParaImagen);
+        const logoW = Math.round(w * logoSizeRatio);
+        const logoH = Math.round(logoW * (logo.height / logo.width));
+        const {x, y} = getLogoCoords(w, h, logoW, logoH);
+        ctx.drawImage(logo, x, y, logoW, logoH);
+
+        // Guarda referencia para drag
+        canvas._logoMeta = { x, y, logoW, logoH, logo, p, platform, color };
+    } catch(e) {}
+
+    // Badge AGOTADO
+    if (p.estado === 'AGOTADO') {
+        const bw = Math.round(w * 0.38);
+        const bh = Math.round(w * 0.092);
+        const bx = Math.round((w - bw) / 2);
+        const by = Math.round((h - bh) / 2);
+        const r = bh / 2;
+        // Fondo rojo semitransparente con bordes redondeados
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(bx + r, by);
+        ctx.arcTo(bx + bw, by, bx + bw, by + bh, r);
+        ctx.arcTo(bx + bw, by + bh, bx, by + bh, r);
+        ctx.arcTo(bx, by + bh, bx, by, r);
+        ctx.arcTo(bx, by, bx + bw, by, r);
+        ctx.closePath();
+        ctx.fillStyle = "rgba(192,57,43,0.88)";
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255,255,255,0.6)";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        // Texto
+        ctx.textAlign = "center";
+        ctx.fillStyle = "white";
+        ctx.font = `bold ${Math.round(w * 0.052)}px Arial`;
+        ctx.fillText("⛔  AGOTADO", bx + bw / 2, by + bh * 0.67);
+        ctx.restore();
+    }
+}
+
+// ===================== DRAG LOGO =====================
+function setupLogoInteraction(canvas, p, platform, color) {
+    function getCanvasCoords(e) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+            x: (clientX - rect.left) * scaleX,
+            y: (clientY - rect.top) * scaleY
+        };
+    }
+
+    function isOnLogo(cx, cy) {
+        const m = canvas._logoMeta;
+        if (!m) return false;
+        return cx >= m.x && cx <= m.x + m.logoW && cy >= m.y && cy <= m.y + m.logoH;
+    }
+
+    function onDown(e) {
+        const {x, y} = getCanvasCoords(e);
+        if (isOnLogo(x, y)) {
+            isDraggingLogo = true;
+            activeCanvasForDrag = canvas;
+            activePForDrag = p;
+            dragOffsetX = x - canvas._logoMeta.x;
+            dragOffsetY = y - canvas._logoMeta.y;
+            canvas.style.cursor = "grabbing";
+            e.preventDefault();
+        }
+    }
+
+    function onMove(e) {
+        if (!isDraggingLogo || activeCanvasForDrag !== canvas) return;
+        const {x, y} = getCanvasCoords(e);
+        const m = canvas._logoMeta;
+        const newX = Math.max(0, Math.min(canvas.width - m.logoW, x - dragOffsetX));
+        const newY = Math.max(0, Math.min(canvas.height - m.logoH, y - dragOffsetY));
+        logoPos.x = newX; logoPos.y = newY;
+        // Redibuja solo el canvas activo
+        redibujarConLogo(canvas, p, platform, color);
+        e.preventDefault();
+    }
+
+    function onUp() {
+        if (isDraggingLogo) {
+            isDraggingLogo = false;
+            canvas.style.cursor = "crosshair";
+        }
+    }
+
+    canvas.addEventListener('mousedown', onDown);
+    canvas.addEventListener('mousemove', onMove);
+    canvas.addEventListener('mouseup', onUp);
+    canvas.addEventListener('touchstart', onDown, {passive:false});
+    canvas.addEventListener('touchmove', onMove, {passive:false});
+    canvas.addEventListener('touchend', onUp);
+
+    canvas.addEventListener('mousemove', (e) => {
+        if (!isDraggingLogo) {
+            const {x,y} = getCanvasCoords(e);
+            canvas.style.cursor = isOnLogo(x,y) ? "grab" : "crosshair";
+        }
+    });
+}
+
+async function redibujarConLogo(canvas, p, platform, color) {
+    if (canvas._srcUrl) {
+        await dibujarArte(canvas, canvas._srcUrl, p, platform, color);
+    }
+}
+
+
+
+// ===================== IMAGEN =====================
+function cargarImg(url) {
+    return new Promise((res, rej) => {
+        if (!url) { rej("URL vacía"); return; }
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        let clean = url.trim().replace(/^https?:\/\//,'');
+        img.src = PROXY + encodeURIComponent(clean);
+        img.onload = () => res(img);
+        img.onerror = () => {
+            const i2 = new Image();
+            i2.crossOrigin = "anonymous";
+            i2.src = url;
+            i2.onload = () => res(i2);
+            i2.onerror = rej;
+        };
+    });
+}
+
+// ===================== COPY / HASHTAGS =====================
+function generarCopyCompleto() {
+    const id = document.getElementById('productSelect').value;
+    const p = productosGlobal.find(x => x.id === id);
+    const userWeb = document.getElementById('userWeb').value || "Visita nuestra tienda";
+    const userWA  = document.getElementById('userWA').value || "";
+    if (!p) return;
+
+    const waLink = userWA ? `https://wa.me/${userWA.replace(/\D/g,'')}` : "Contáctanos";
+    const tituloMP = `${p.tituloDisplay} | Nuevo | Envíos a toda Guatemala | Pago Contra Entrega`;
+
+    const palabrasClave = p.tituloDisplay.toLowerCase()
+        .replace(/[^\w\s]/gi,'').split(' ')
+        .filter(w => w.length > 3)
+        .map(w => `#${w.charAt(0).toUpperCase()+w.slice(1)}`);
+    const extraTags = [...new Set(palabrasClave)].slice(0,10).join(' ');
+    const hashtagsBase = `${extraTags} #Guatemala #Ventas #TiendaOnline #EnviosGuate #PagoContraEntrega #MarketplaceGT`;
+
+    document.getElementById('copyTextArea').value =
+        `📌 ${tituloMP}\n\n⭐ ¡${p.tituloGancho.toUpperCase()}! ⭐\n\n🔹 ${p.tituloDisplay.toUpperCase()}\n\n📝 DESCRIPCIÓN:\n${p.desc}\n\n🚚 ENVÍOS A TODA GUATEMALA 🇬🇹\n💳 PAGOS: Efectivo, Transferencia y VISA.\n*(Aplican restricciones)\n\n🛒 COMPRA AQUÍ: ${userWeb}\n📲 WHATSAPP: ${waLink}\n\n${hashtagsBase}`;
+
+    renderHashtagPills(hashtagsBase.split(' ').filter(h=>h.startsWith('#')));
+}
+
+// ===================== BATCH: TODOS LOS PRODUCTOS =====================
+async function generarTodosLosProductos() {
+    const cat = document.getElementById('catFilter').value;
+    const sub = document.getElementById('subCatFilter').value;
+    const platform = document.getElementById('platformSelect').value;
+    const color = document.getElementById('accentColor').value;
+    const area = document.getElementById('previewArea');
+
+    let filtrados = productosGlobal;
+    if (cat) filtrados = filtrados.filter(p => p.cat === cat);
+    if (sub) filtrados = filtrados.filter(p => p.subCat === sub);
+    if (!filtrados.length) return;
+
+    area.innerHTML = "";
+    const total = filtrados.length;
+    setStatus(`⏳ Generando 0 de ${total} productos...`, "loading");
+
+    for (let [i, p] of filtrados.entries()) {
+        setStatus(`⏳ Generando ${i+1} de ${total}: ${p.tituloDisplay}`, "loading");
+
+        // Separador de producto (ocupa todo el ancho del grid)
+        const sep = document.createElement('div');
+        sep.style.cssText = "grid-column:1/-1;text-align:left;font-size:0.72rem;font-weight:700;color:#1C3F60;background:#eef2f8;padding:7px 14px;border-radius:8px;letter-spacing:0.04em;border-left:3px solid #1C3F60;";
+        sep.textContent = `${i+1}. ${p.tituloDisplay.toUpperCase()}  ·  ${p.subCat}`;
+        
+        // Cada producto tiene su propio grid
+        const grid = document.createElement('div');
+        grid.className = "canvas-grid";
+        grid.style.width = "100%";
+        area.appendChild(sep);
+        area.appendChild(grid);
+
+        let imagenes = [p.imgP];
+        if (p.imgG) {
+            const gal = p.imgG.split('|').map(u => u.trim()).filter(u => u);
+            imagenes = [...imagenes, ...gal];
+        }
+
+        for (let [idx, url] of imagenes.entries()) {
+            if (!url) continue;
+            const card = document.createElement('div');
+            card.className = "canvas-card";
+            const canvas = document.createElement('canvas');
+            card.appendChild(canvas);
+            const lbl = document.createElement('div');
+            lbl.className = "canvas-label";
+            lbl.textContent = `Img ${idx+1} · ${getPlatformLabel(platform)}`;
+            card.appendChild(lbl);
+            grid.appendChild(card);
+            await dibujarArte(canvas, url, p, platform, color);
+            setupLogoInteraction(canvas, p, platform, color);
+        }
+    }
+    setStatus(`✅ ${total} productos generados`, "ok");
+}
+
+// ===================== HASHTAGS (GRATIS, LOCAL) =====================
+// Banco de hashtags por categoría y palabras clave
+const HASHTAG_BANCO = {
+    general:    ["#Guatemala","#Ventas","#TiendaOnline","#EnviosGuate","#PagoContraEntrega","#MarketplaceGT","#CompraLocal","#NegocioGuatemala","#Emprendimiento","#ProductosGT","#GuatemalaCity","#OfertasGT","#PreciosBajos","#CalidadGT","#VentasOnline"],
+    cocina:     ["#CocinaGuatemala","#Gastronomia","#Restaurantes","#ComidaGT","#Hoteles","#Comedores","#Bar","#MenuDelDia","#CocinaLatina","#FoodLovers","#GastronomiaGT","#RecetasFaciles","#CocinaCreativa","#ChefGT","#FoodGram"],
+    tecnologia: ["#Tecnologia","#Tech","#Electronica","#Gadgets","#Computadoras","#TechGuatemala","#MovilesGT","#Smartphones","#Accesorios","#TiendaTech","#DigitalGT","#InnovacionGT","#SolucionesTech","#TecnologiaLatam","#TechLife"],
+    ropa:       ["#Moda","#Fashion","#Ropa","#Estilo","#Tendencias","#ModaGT","#FashionLovers","#OOTD","#OutfitDelDia","#RopaGuatemala","#ModaLatina","#Clothes","#StyleGT","#Accesorios","#LookDelDia"],
+    hogar:      ["#Hogar","#Decoracion","#CasaGT","#Muebles","#InterioresGT","#HomeDecor","#DecoracionHogar","#Living","#Furniture","#CasaBonita","#HomeStyle","#AmbienteHogar","#Remodelacion","#TuHogar","#EspaciosBonitos"],
+    salud:      ["#Salud","#Bienestar","#SaludGT","#Wellness","#Fitness","#VidaSana","#NutricionGT","#Suplementos","#FitnessGT","#SaludyBelleza","#NaturalGT","#BienEstar","#VidaSaludable","#CuidadoPersonal","#SaludIntegral"],
+    belleza:    ["#Belleza","#Beauty","#MaquilajeGT","#CuidadoPiel","#SkinCare","#MakeupLovers","#BeautyGT","#CosmeticosGT","#NailArt","#BeautyTips","#GlamourGT","#BellezaLatina","#MakeupArtist","#SkinRoutine","#BeautyBlogger"],
+    deportes:   ["#Deportes","#Sport","#FitnessGT","#Gym","#Atletismo","#DeportesGT","#GymLife","#Entrenamiento","#Workout","#SportStyle","#ActiveLife","#FitLife","#DeporteYSalud","#Atletismo","#RunningGT"],
+    alimentos:  ["#Alimentos","#Comida","#FoodGT","#Snacks","#ProductosNaturales","#AlimentosSanos","#FoodPhotography","#Nutricion","#Organico","#MercadoGT","#FoodBlogger","#DeliciasGT","#SaboresGT","#ComidaRica","#ProductosLocales"],
+};
+
+function generarHashtagsLocales(p) {
+    const texto = `${p.tituloDisplay} ${p.desc} ${p.cat} ${p.subCat}`.toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    // Detectar categoría temática
+    const matches = {
+        cocina:     /cocina|restaurante|hotel|comedor|bar|gastronomia|menu|chef|plato|bebida|cafeteria/,
+        tecnologia: /tecnolog|electr|comput|movil|smartphone|gadget|tablet|accesorio|laptop|red|wifi/,
+        ropa:       /ropa|moda|fashion|camiset|pantalon|vestido|camisa|uniforme|calzado|zapato|bolso/,
+        hogar:      /hogar|casa|decoracion|mueble|sala|dormitorio|cocina|baño|jardin|furniture/,
+        salud:      /salud|medicina|farmacia|bienestar|suplemento|vitamina|nutricion|fitness|gym/,
+        belleza:    /belleza|cosmet|maquillaje|skincare|piel|cabello|uña|perfume|crema|serum/,
+        deportes:   /deporte|futbol|basket|gym|atletismo|running|ciclismo|natacion|entrenamiento/,
+        alimentos:  /alimento|comida|snack|dulce|chocolate|cafe|refresco|jugo|fruta|verdura|organico/,
+    };
+
+    let categoriaDetectada = "general";
+    let maxScore = 0;
+    for (const [cat, regex] of Object.entries(matches)) {
+        const score = (texto.match(new RegExp(regex.source, 'g')) || []).length;
+        if (score > maxScore) { maxScore = score; categoriaDetectada = cat; }
+    }
+
+    // Hashtags del banco de categoría + general (sin duplicados)
+    const catTags  = HASHTAG_BANCO[categoriaDetectada] || [];
+    const genTags  = HASHTAG_BANCO.general;
+    const todosTags = [...catTags, ...genTags];
+
+    // Hashtags específicos del nombre del producto (palabras > 3 letras)
+    const palabras = (p.tituloDisplay + " " + p.desc).toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+        .replace(/[^\w\s]/gi,'').split(/\s+/)
+        .filter(w => w.length > 3 && !/^(para|como|este|esta|esos|esas|unos|unas|pero|todo|toda|cada|solo|solo|muy|mas|menos|entre|sobre|bajo|desde|hasta|con|sin|por|que|del|los|las|una|uno|sus|ser|fue|han|hay|sea)$/.test(w));
+
+    const especificos = [...new Set(palabras)]
+        .slice(0, 5)
+        .map(w => `#${w.charAt(0).toUpperCase()}${w.slice(1)}`);
+
+    // Mezclar: 5 específicos + 5 de categoría + completar con generales hasta 10 únicos
+    const final = [];
+    const seen = new Set();
+    const agregar = (tag) => { if (!seen.has(tag.toLowerCase()) && final.length < 10) { seen.add(tag.toLowerCase()); final.push(tag); } };
+
+    especificos.forEach(agregar);
+    // Mezcla aleatoria del banco para variedad
+    const shuffled = todosTags.sort(() => Math.random() - 0.5);
+    shuffled.forEach(agregar);
+
+    return final;
+}
+
+// ===================== BÚSQUEDA RÁPIDA =====================
+function onSearchInput(inp) {
+    document.getElementById('btnClearSrch').style.display = inp.value ? 'block' : 'none';
+    aplicarFiltros();
+}
+function clearSearch() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('btnClearSrch').style.display = 'none';
+    document.getElementById('searchCount').textContent = '';
+    aplicarFiltros();
+}
+
+// ===================== DESCARGA INDIVIDUAL =====================
+function descargarIndividual() {
+    const canvases = document.querySelectorAll('#previewArea canvas');
+    if (!canvases.length) { setStatus("⚠️ Genera las imágenes primero", "err"); return; }
+    // Descarga el primer canvas visible (el que está más arriba en pantalla)
+    const area = document.getElementById('previewArea');
+    const areaRect = area.getBoundingClientRect();
+    let target = null;
+    for (const c of canvases) {
+        const r = c.getBoundingClientRect();
+        if (r.top >= areaRect.top - 10) { target = c; break; }
+    }
+    if (!target) target = canvases[0];
+    bajarCanvas(target);
+}
+function bajarCanvas(canvas, nombre) {
+    const pSelect = document.getElementById('productSelect');
+    const base = nombre || (pSelect.value ? pSelect.options[pSelect.selectedIndex].text : 'imagen');
+    const clean = base.replace(/[^a-z0-9]/gi,'_').toLowerCase();
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = clean + '.png';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setStatus('✅ Imagen descargada', 'ok');
+    setTimeout(() => setStatus('Listo.',''), 2000);
+}
+
+function buscarHashtags() {
+    const id = document.getElementById('productSelect').value;
+    const p  = productosGlobal.find(x => x.id === id);
+    if (!p) { setStatus("⚠️ Selecciona un producto primero", "err"); return; }
+
+    const tags = generarHashtagsLocales(p);
+    const existentes = document.getElementById('copyTextArea').value;
+    // Reemplaza los hashtags al final del copy (si ya había)
+    const copyLimpio = existentes.replace(/\n#[\w#\s]+$/, '').trimEnd();
+    document.getElementById('copyTextArea').value = copyLimpio + "\n\n" + tags.join(' ');
+    renderHashtagPills(tags);
+    setStatus(`✅ ${tags.length} hashtags sugeridos`, "ok");
+    setTimeout(() => setStatus("Listo.", ""), 2500);
+}
+
+function renderHashtagPills(tags) {
+    const wrap = document.getElementById('hashtagTags');
+    wrap.innerHTML = "";
+    tags.forEach(tag => {
+        const pill = document.createElement('span');
+        pill.className = 'htag';
+        pill.textContent = tag;
+        pill.title = "Clic para copiar";
+        pill.onclick = () => {
+            navigator.clipboard.writeText(tag).then(() => {
+                pill.style.background = "#1C3F60";
+                pill.style.color = "#fff";
+                setTimeout(() => { pill.style.background = ""; pill.style.color = ""; }, 800);
+            });
+        };
+        wrap.appendChild(pill);
+    });
+}
+
+function copiarAlPortapapeles() {
+    const area = document.getElementById('copyTextArea');
+    area.select();
+    document.execCommand("copy");
+    setStatus("📋 Texto copiado al portapapeles", "ok");
+    setTimeout(() => setStatus("Listo.", ""), 2000);
+}
+
+// ===================== DESCARGAR PNG (ZIP) =====================
+async function descargarTodo() {
+    const canvases = document.querySelectorAll('#previewArea canvas');
+    if (!canvases.length) { alert("Primero genera las imágenes."); return; }
+    const pSelect  = document.getElementById('productSelect');
+    const cat = document.getElementById('catFilter').value;
+    const sub = document.getElementById('subCatFilter').value;
+    const baseName = pSelect.value
+        ? pSelect.options[pSelect.selectedIndex].text
+        : (sub || cat || "productos");
+    const name = baseName.replace(/[^a-z0-9]/gi,'_').toLowerCase();
+
+    setStatus("🗜️ Empaquetando imágenes...", "loading");
+
+    // Carga JSZip dinámicamente (igual que jsPDF más abajo)
+    if (!window.JSZip) {
+        await new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+            s.onload = resolve; s.onerror = reject;
+            document.head.appendChild(s);
+        });
+    }
+
+    const zip = new JSZip();
+
+    canvases.forEach((canvas, i) => {
+        const dataUrl = canvas.toDataURL("image/png");
+        const base64 = dataUrl.split(',')[1];
+        zip.file(`${name}_${i+1}.png`, base64, { base64: true });
+    });
+
+    try {
+        const blob = await zip.generateAsync({ type: "blob" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${name}.zip`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setStatus(`✅ ${canvases.length} imágenes descargadas en ${name}.zip`, "ok");
+    } catch (err) {
+        console.error(err);
+        setStatus("⚠️ Error al generar el ZIP", "err");
+    }
+    setTimeout(() => setStatus("Listo.", ""), 3000);
+}
+
+// ===================== EXPORTAR PDF =====================
+async function exportarPDF() {
+    const canvases = document.querySelectorAll('#previewArea canvas');
+    const pSelect  = document.getElementById('productSelect');
+    if (!pSelect.value || !canvases.length) { alert("Selecciona un producto y sincroniza."); return; }
+
+    setStatus("📄 Generando PDF...", "loading");
+
+    // Carga jsPDF dinámicamente
+    if (!window.jspdf) {
+        await new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+            s.onload = resolve; s.onerror = reject;
+            document.head.appendChild(s);
+        });
+    }
+
+    const { jsPDF } = window.jspdf;
+    const name = pSelect.options[pSelect.selectedIndex].text;
+
+    canvases.forEach((canvas, i) => {
+        const imgData = canvas.toDataURL("image/jpeg", 0.92);
+        const isLandscape = canvas.width > canvas.height;
+        const orientation = isLandscape ? 'l' : 'p';
+        const doc = new jsPDF({ orientation, unit: 'px', format: [canvas.width, canvas.height] });
+        doc.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
+        doc.save(`${name.replace(/[^a-z0-9]/gi,'_').toLowerCase()}_${i+1}.pdf`);
+    });
+
+    setStatus("✅ PDF exportado", "ok");
+    setTimeout(() => setStatus("Listo.", ""), 2500);
+}
+</script>
+</body>
+</html>

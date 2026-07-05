@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drive URL Converter — Flamax</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --verde: #00B050;
+    --azul:  #1B2E8A;
+    --naranja: #FF6B00;
+    --bg: #f4f6f3;
+    --card: #ffffff;
+    --text: #111;
+    --muted: #666;
+    --border: #e0e4df;
+    --success: #00B050;
+    --radius: 16px;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem 4rem;
+  }
+
+  /* Header */
+  header {
+    width: 100%;
+    max-width: 680px;
+    margin-bottom: 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .flame-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--verde);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  header h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--azul);
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+
+  header p {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 2px;
+    font-weight: 400;
+  }
+
+  /* Card */
+  .card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    width: 100%;
+    max-width: 680px;
+    margin-bottom: 1rem;
+  }
+
+  .card-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  /* Input area */
+  .input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 0.75rem;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    outline: none;
+    color: var(--text);
+    background: var(--bg);
+    transition: border-color 0.2s;
+  }
+
+  input[type="text"]:focus { border-color: var(--verde); }
+  input[type="text"][readonly] { background: #f9fafb; color: var(--azul); cursor: text; }
+
+  .btn {
+    padding: 0.75rem 1.2rem;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: white;
+    font-family: var(--sans);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--text);
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn:hover { background: var(--bg); border-color: #aaa; }
+  .btn:active { transform: scale(0.97); }
+
+  .btn-primary {
+    background: var(--verde);
+    color: white;
+    border-color: var(--verde);
+  }
+  .btn-primary:hover { background: #009940; border-color: #009940; }
+
+  .btn-copy {
+    background: var(--azul);
+    color: white;
+    border-color: var(--azul);
+    font-size: 0.78rem;
+    padding: 0.6rem 1rem;
+  }
+  .btn-copy:hover { background: #142266; }
+  .btn-copy.copiado { background: var(--verde); border-color: var(--verde); }
+
+  .btn-clear {
+    padding: 0.75rem 0.9rem;
+    color: var(--muted);
+  }
+
+  /* Actions row */
+  .actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  /* Badge */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+  .badge-ok  { background: #e6f9ef; color: #00703a; }
+  .badge-err { background: #fdecea; color: #c0392b; }
+
+  /* Result section */
+  #resultado { display: none; }
+
+  .result-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .result-row:last-child { margin-bottom: 0; }
+
+  /* Preview */
+  .preview-wrap {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .preview-img-box {
+    width: 130px;
+    height: 130px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .preview-img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .preview-img-box .preview-label {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    background: rgba(0,0,0,0.55);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+
+  .preview-meta { flex: 1; min-width: 180px; }
+
+  .meta-row {
+    margin-bottom: 0.6rem;
+  }
+
+  .meta-row .meta-key {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+
+  .meta-row .meta-val {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--azul);
+    word-break: break-all;
+    font-weight: 600;
+  }
+
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 1.5px solid var(--border);
+    margin: 1.25rem 0;
+  }
+
+  /* History */
+  #historial-wrap { display: none; }
+
+  .hist-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.78rem;
+  }
+
+  .hist-item:last-child { border-bottom: none; }
+
+  .hist-thumb {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .hist-id {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .hist-copy {
+    font-size: 0.72rem;
+    padding: 4px 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: var(--sans);
+    font-weight: 700;
+    color: var(--azul);
+    flex-shrink: 0;
+  }
+
+  .hist-copy:hover { background: var(--border); }
+
+  /* Tip */
+  .tip {
+    background: #fff8e1;
+    border-left: 3px solid var(--naranja);
+    border-radius: 0 10px 10px 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.78rem;
+    color: #7a5000;
+    line-height: 1.6;
+  }
+
+  footer {
+    margin-top: 2rem;
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  footer span { color: var(--naranja); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="flame-icon">🔥</div>
+  <div>
+    <h1>Drive URL Converter</h1>
+    <p>Flamax de Guatemala · Herramienta interna</p>
+  </div>
+</header>
+
+<!-- Input -->
+<div class="card">
+  <div class="card-label">Link de Google Drive</div>
+  <div class="input-row">
+    <input type="text" id="input-url"
+      placeholder="https://drive.google.com/file/d/ABC123.../view?usp=sharing"
+      oninput="convertir()">
+    <button class="btn btn-clear" onclick="limpiar()" title="Limpiar">✕</button>
+  </div>
+  <div class="actions">
+    <button class="btn btn-primary" onclick="pegarPortapapeles()">
+      📋 Pegar portapapeles
+    </button>
+    <span id="badge-ok"  class="badge badge-ok"  style="display:none">✓ <span id="badge-formato"></span></span>
+    <span id="badge-err" class="badge badge-err" style="display:none">✕ URL no reconocida</span>
+  </div>
+</div>
+
+<!-- Resultado -->
+<div id="resultado">
+
+  <div class="card">
+    <div class="card-label">URL directa — campo "imagen" en Google Sheets</div>
+    <div class="result-row">
+      <input type="text" id="url-directa" readonly>
+      <button class="btn btn-copy" id="btn-copy-directa" onclick="copiar('url-directa','btn-copy-directa')">
+        Copiar
+      </button>
+    </div>
+
+    <hr class="divider">
+
+    <div class="card-label">URL thumbnail — recomendada para el catálogo web (sin CORS)</div>
+    <div class="result-row">
+      <input type="text" id="url-thumb" readonly>
+      <button class="btn btn-copy" id="btn-copy-thumb" onclick="copiar('url-thumb','btn-copy-thumb')">
+        Copiar
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Vista previa</div>
+    <div class="preview-wrap">
+      <div class="preview-img-box">
+        <img id="preview-img" src="" alt="Vista previa"
+          onerror="this.style.display='none'; document.getElementById('preview-error').style.display='block'">
+        <div id="preview-error" style="display:none; font-size:11px; color:var(--muted); text-align:center; padding:8px;">
+          Sin vista previa — la imagen puede ser privada
+        </div>
+        <div class="preview-label">thumbnail</div>
+      </div>
+      <div class="preview-meta">
+        <div class="meta-row">
+          <div class="meta-key">ID del archivo</div>
+          <div class="meta-val" id="meta-id">—</div>
+        </div>
+        <div class="meta-row">
+          <div class="meta-key">Formato detectado</div>
+          <div class="meta-val" id="meta-formato">—</div>
+        </div>
+        <div class="meta-row">
+          <div class="meta-key">Tamaño thumbnail</div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:4px;">
+            <button class="btn" style="font-size:0.72rem; padding:4px 10px;" onclick="cambiarTamano(400)">w400</button>
+            <button class="btn" style="font-size:0.72rem; padding:4px 10px;" onclick="cambiarTamano(600)">w600</button>
+            <button class="btn" style="font-size:0.72rem; padding:4px 10px;" onclick="cambiarTamano(800)">w800</button>
+            <button class="btn" style="font-size:0.72rem; padding:4px 10px;" onclick="cambiarTamano(1200)">w1200</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tip">
+      💡 <strong>¿Cuál usar?</strong><br>
+      Usá <strong>URL thumbnail</strong> en el campo <code>imagen</code> de tu Google Sheet para el catálogo web — funciona desde cualquier dominio sin errores de CORS.<br>
+      Usá <strong>URL directa</strong> solo si necesitás descargar el archivo original.
+    </div>
+  </div>
+
+</div>
+
+<!-- Historial -->
+<div id="historial-wrap">
+  <div class="card">
+    <div class="card-label" style="margin-bottom:1rem;">Historial de esta sesión</div>
+    <div id="historial-lista"></div>
+    <button class="btn" style="margin-top:1rem; font-size:0.75rem;" onclick="limpiarHistorial()">
+      Limpiar historial
+    </button>
+  </div>
+</div>
+
+<footer>
+  Flamax de Guatemala · <span>Drive URL Converter</span> · Solo procesa URLs localmente, ningún dato sale de tu navegador.
+</footer>
+
+<script>
+  var fileIdActual = null;
+  var tamanoActual = 500;
+  var historial = [];
+
+  function extraerId(url) {
+    url = (url || '').trim();
+    var m;
+    m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (m) return { id: m[1], formato: 'Enlace de archivo Drive' };
+    m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (m) return { id: m[1], formato: 'Parámetro ?id=' };
+    m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (m) return { id: m[1], formato: 'URL corta /d/' };
+    m = url.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+    if (m) return { id: m[1], formato: 'Carpeta de Drive' };
+    if (/^[a-zA-Z0-9_-]{25,}$/.test(url)) return { id: url, formato: 'ID directo' };
+    return null;
+  }
+
+  function convertir() {
+    var input = document.getElementById('input-url').value;
+    var badgeOk  = document.getElementById('badge-ok');
+    var badgeErr = document.getElementById('badge-err');
+    var resultado = document.getElementById('resultado');
+
+    badgeOk.style.display = 'none';
+    badgeErr.style.display = 'none';
+    resultado.style.display = 'none';
+
+    if (!input.trim()) return;
+
+    var parsed = extraerId(input);
+    if (!parsed) {
+      badgeErr.style.display = 'inline-flex';
+      return;
+    }
+
+    fileIdActual = parsed.id;
+    var urlDirecta = 'https://drive.google.com/uc?export=view&id=' + parsed.id;
+    var urlThumb   = 'https://drive.google.com/thumbnail?id=' + parsed.id + '&sz=w' + tamanoActual;
+
+    document.getElementById('url-directa').value = urlDirecta;
+    document.getElementById('url-thumb').value   = urlThumb;
+    document.getElementById('meta-id').textContent = parsed.id;
+    document.getElementById('meta-formato').textContent = parsed.formato;
+    document.getElementById('badge-formato').textContent = parsed.formato;
+
+    var prevImg = document.getElementById('preview-img');
+    var prevErr = document.getElementById('preview-error');
+    prevImg.style.display = 'block';
+    prevErr.style.display = 'none';
+    prevImg.src = urlThumb;
+
+    badgeOk.style.display = 'inline-flex';
+    resultado.style.display = 'block';
+
+    // Agregar al historial
+    agregarHistorial(parsed.id, urlThumb, urlDirecta);
+  }
+
+  function cambiarTamano(sz) {
+    tamanoActual = sz;
+    if (!fileIdActual) return;
+    var urlThumb = 'https://drive.google.com/thumbnail?id=' + fileIdActual + '&sz=w' + sz;
+    document.getElementById('url-thumb').value = urlThumb;
+    var prevImg = document.getElementById('preview-img');
+    prevImg.style.display = 'block';
+    document.getElementById('preview-error').style.display = 'none';
+    prevImg.src = urlThumb;
+  }
+
+  function copiar(inputId, btnId) {
+    var val = document.getElementById(inputId).value;
+    var btn = document.getElementById(btnId);
+    navigator.clipboard.writeText(val).then(function() {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '✓ Copiado';
+      btn.classList.add('copiado');
+      setTimeout(function() {
+        btn.innerHTML = orig;
+        btn.classList.remove('copiado');
+      }, 1800);
+    }).catch(function() {
+      var el = document.getElementById(inputId);
+      el.select();
+      document.execCommand('copy');
+      btn.innerHTML = '✓ Copiado';
+      btn.classList.add('copiado');
+      setTimeout(function() { btn.innerHTML = 'Copiar'; btn.classList.remove('copiado'); }, 1800);
+    });
+  }
+
+  function limpiar() {
+    document.getElementById('input-url').value = '';
+    document.getElementById('resultado').style.display = 'none';
+    document.getElementById('badge-ok').style.display = 'none';
+    document.getElementById('badge-err').style.display = 'none';
+    fileIdActual = null;
+  }
+
+  async function pegarPortapapeles() {
+    try {
+      var text = await navigator.clipboard.readText();
+      document.getElementById('input-url').value = text;
+      convertir();
+    } catch(e) {
+      document.getElementById('input-url').focus();
+      alert('Permiso denegado. Pegá manualmente con Ctrl+V en el campo.');
+    }
+  }
+
+  function agregarHistorial(id, urlThumb, urlDirecta) {
+    // Evitar duplicados
+    if (historial.find(function(h) { return h.id === id; })) return;
+    historial.unshift({ id: id, urlThumb: urlThumb, urlDirecta: urlDirecta });
+    if (historial.length > 10) historial.pop();
+    renderHistorial();
+  }
+
+  function renderHistorial() {
+    var wrap = document.getElementById('historial-wrap');
+    var lista = document.getElementById('historial-lista');
+    if (!historial.length) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    lista.innerHTML = historial.map(function(h, i) {
+      return '<div class="hist-item">' +
+        '<img class="hist-thumb" src="' + h.urlThumb + '" alt="" onerror="this.style.opacity=0.2">' +
+        '<span class="hist-id">' + h.id + '</span>' +
+        '<button class="hist-copy" onclick="copiarDirecto(\'' + h.urlThumb + '\', this)">Copiar thumb</button>' +
+        '</div>';
+    }).join('');
+  }
+
+  function copiarDirecto(url, btn) {
+    navigator.clipboard.writeText(url).then(function() {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '✓ Copiado';
+      setTimeout(function() { btn.innerHTML = orig; }, 1500);
+    });
+  }
+
+  function limpiarHistorial() {
+    historial = [];
+    renderHistorial();
+  }
+
+  // Permitir pegar con Ctrl+V directamente en cualquier parte de la página
+  document.addEventListener('paste', function(e) {
+    var active = document.activeElement;
+    if (active && active.tagName === 'INPUT') return;
+    var text = e.clipboardData.getData('text');
+    if (text) {
+      document.getElementById('input-url').value = text;
+      convertir();
+    }
+  });
+</script>
+</body>
+</html>

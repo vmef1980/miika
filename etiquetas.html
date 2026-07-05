@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Impresor de Guías Oficiales - Rompecabezas de Guatemala</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    
+    <style>
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+
+        /* Panel de Control Estilizado */
+        .config-panel {
+            width: 101mm; background: white; padding: 15px;
+            border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;
+        }
+        .config-group { display: flex; flex-direction: column; gap: 4px; }
+        .config-panel label { font-weight: bold; font-size: 0.85rem; color: #333; }
+        .config-panel input[type="file"] { font-size: 0.85rem; }
+        
+        .btn-print { background: #0072bc; color: white; padding: 10px; border: none; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 1rem; margin-top: 5px; }
+        .btn-print:disabled { background: #ccc; cursor: not-allowed; }
+
+        /* Área de visualización */
+        #labelsContainer { display: flex; flex-direction: column; gap: 20px; }
+
+        /* Formato de Etiqueta 101mm x 101mm */
+        @page { size: 101mm 101mm; margin: 0; }
+        
+        .label-wrapper {
+            width: 101mm; height: 101mm; background: white;
+            position: relative; overflow: hidden;
+            border: 1px dashed #999; page-break-after: always;
+        }
+
+        /* Renderizado del PDF original */
+        .pdf-canvas {
+            width: 100%; height: 100%; object-fit: contain;
+            display: block;
+        }
+
+        /* UBICACIÓN GENERAL CALIBRADA PARA EL LOGO */
+        .brand-overlay {
+            position: absolute;
+            bottom: 11.2mm;   
+            left: 46.5mm;     
+            width: 13.5mm;    
+            height: 8.5mm;    
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white; 
+        }
+        .brand-logo {
+            max-width: 100%; max-height: 100%; object-fit: contain;
+        }
+
+        /* Reglas de Impresión Limpia */
+        @media print {
+            .config-panel { display: none; }
+            body { background: white; padding: 0; }
+            .label-wrapper { border: none; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="config-panel">
+    <div class="config-group">
+        <label>1. Cargar PDF de la Guía (Forza):</label>
+        <input type="file" id="pdfInput" accept=".pdf">
+    </div>
+    
+    <div class="config-group">
+        <label>2. Logo Opcional (Reemplaza al de defecto):</label>
+        <input type="file" id="logoInput" accept="image/*">
+    </div>
+    
+    <button id="btnPrint" class="btn-print" onclick="window.print()" disabled>Imprimir Guías</button>
+</div>
+
+<div id="labelsContainer">
+    </div>
+
+<script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+    // Ruta de la imagen por defecto
+    const DEFAULT_LOGO_SRC = "img/RompecabezasDeGuatemala.png";
+    let currentLogoData = DEFAULT_LOGO_SRC;
+
+    // Manejador del Logo Personalizado (Cambia la fuente de forma inmediata si se sube un archivo)
+    document.getElementById('logoInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                currentLogoData = event.target.result;
+                // Actualizar todos los logos que ya estén cargados visualmente en pantalla
+                document.querySelectorAll('.brand-logo').forEach(img => img.src = currentLogoData);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Procesamiento principal del archivo PDF de Forza
+    document.getElementById('pdfInput').addEventListener('change', async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const container = document.getElementById('labelsContainer');
+        const printBtn = document.getElementById('btnPrint');
+        container.innerHTML = "<div style='padding:10px;'>Abriendo y procesando PDF oficial...</div>";
+        printBtn.disabled = true;
+
+        try {
+            const fileReader = new FileReader();
+            fileReader.onload = async function() {
+                const typedarray = new Uint8Array(this.result);
+                const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                container.innerHTML = ""; 
+
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    const page = await pdf.getPage(pageNum);
+                    
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'label-wrapper';
+                    
+                    const canvas = document.createElement('canvas');
+                    canvas.className = 'pdf-canvas';
+                    wrapper.appendChild(canvas);
+
+                    // Contenedor absoluto del logo utilizando el valor actual (Defecto o Personalizado)
+                    const overlay = document.createElement('div');
+                    overlay.className = 'brand-overlay';
+                    overlay.innerHTML = `<img src="${currentLogoData}" class="brand-logo" alt="Logo">`;
+                    wrapper.appendChild(overlay);
+
+                    container.appendChild(wrapper);
+
+                    const viewport = page.getViewport({ scale: 2.0 }); 
+                    const context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    const renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                    };
+                    await page.render(renderContext).promise;
+                }
+                printBtn.disabled = false;
+            };
+            fileReader.readAsArrayBuffer(file);
+        } catch (error) {
+            console.error(error);
+            container.innerHTML = "<b style='color:red; padding:10px;'>Error al cargar el PDF. Verifica que sea un archivo correcto.</b>";
+        }
+    });
+</script>
+
+</body>
+</html>
