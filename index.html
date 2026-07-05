@@ -84,7 +84,7 @@
     }
 
     img { -webkit-user-drag: none; pointer-events: none; }
-    input, button, select, .boton-categoria, .link-leer-mas, #carrito-float, #btn-volver-float, .thumb, .nav-modal button, .btn-subfiltro, a, #ollita-animada {
+    input, button, select, .boton-categoria, .link-leer-mas, #carrito-float, #btn-volver-float, .thumb, .nav-modal button, .btn-subfiltro, a, #miikita-animada {
       pointer-events: auto !important;
     }
 
@@ -322,22 +322,22 @@
     }
     #cerrar-modal-btn:hover { background: #e2e6ea; transform: scale(1.05); }
 
-    #ollita-animada {
+    #miikita-animada {
       position: fixed; top: 45%; right: 0; width: 64px; z-index: 9999; cursor: pointer;
       transition: transform 0.3s ease; filter: drop-shadow(-2px 4px 10px rgba(0,0,0,0.15));
       text-decoration: none; display: flex; flex-direction: column; align-items: center;
       background: white; padding: 8px 4px; border-radius: 12px 0 0 12px; border: 1px solid var(--border); border-right: none;
       animation: flotar 3s ease-in-out infinite;
     }
-    #ollita-animada img { width: 38px; height: auto; }
-    .ollita-text { font-size: 0.65rem; color: #25D366; font-weight: 800; text-align: center; margin-top: 2px; text-transform: uppercase; }
+    #miikita-animada img { width: 38px; height: auto; }
+    .miikita-text { font-size: 0.65rem; color: #25D366; font-weight: 800; text-align: center; margin-top: 2px; text-transform: uppercase; }
 
     @keyframes flotar {
       0% { transform: translateY(0px); }
       50% { transform: translateY(-8px); }
       100% { transform: translateY(0px); }
     }
-    #ollita-animada:hover { transform: scale(1.08) translateX(-2px); }
+    #miikita-animada:hover { transform: scale(1.08) translateX(-2px); }
 
     @media (max-width: 768px) {
       .modal-contenido { grid-template-columns: 1fr; padding: 1.2rem; }
@@ -557,9 +557,9 @@
     <span id="contador-carrito" style="position:absolute; top:-2px; right:-2px; background:var(--danger); color:white; width:20px; height:20px; border-radius:50%; font-size:0.65rem; display:flex; align-items:center; justify-content:center; border:2px solid white; font-weight:bold;">0</span>
   </a>
   
-  <a id="ollita-animada" href="#" target="_blank" rel="noopener noreferrer">
-    <img src="img/Ollita-v3.png" id="img-ollita" alt="WhatsApp">
-    <span class="ollita-text">Chat</span>
+  <a id="miikita-animada" href="#" target="_blank" rel="noopener noreferrer">
+    <img src="img/miikita.png" id="img-miikita" alt="WhatsApp">
+    <span class="miikita-text">Chat</span>
   </a>
 
   <div id="modal-producto">
@@ -740,7 +740,7 @@
       document.getElementById("f-loc").textContent = CONFIG.ubicacion;
       document.getElementById("f-dev").innerHTML = `Desarrollado por <strong><a href="https://links.rompecabezas.online" target="_blank">${CONFIG.developer}</a></strong>`;
 
-      document.getElementById("ollita-animada").href = whatsappURL;
+      document.getElementById("miikita-animada").href = whatsappURL;
       
 
       document.getElementById("container-badges").innerHTML = CONFIG.badges.map(b => `
