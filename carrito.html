@@ -3,348 +3,356 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="theme-color" id="meta-theme-color" content="#F47C20" />
-  <title id="page-title">Carrito | Flamax</title>
+  <meta name="theme-color" id="meta-theme-color" content="#003772" />
+  <meta name="robots" content="noindex, follow" />
+  <meta name="description" content="Revisa tu pedido de Miika y envíalo por WhatsApp." />
+  <title id="page-title">Tu pedido | Miika</title>
 
-  <link rel="icon" id="favicon" href="img/Flamax-v1.ico" type="image/x-icon">
+  <link rel="icon" id="favicon" href="/favicon.ico?v=2" sizes="48x48">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 
-  <!-- ══ SEGURIDAD: Protección de contenido ══ -->
-  <script>
-    document.addEventListener("keydown", function(e) {
-      if (e.key === "F12" || e.keyCode === 123) { e.preventDefault(); return false; }
-      if (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C" || e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) { e.preventDefault(); return false; }
-      if (e.ctrlKey && (e.key === "u" || e.key === "U" || e.keyCode === 85)) { e.preventDefault(); return false; }
-      if (e.ctrlKey && (e.key === "s" || e.key === "S" || e.keyCode === 83)) { e.preventDefault(); return false; }
-      if (e.ctrlKey && (e.key === "p" || e.key === "P" || e.keyCode === 80)) { e.preventDefault(); return false; }
-    });
-    document.addEventListener("contextmenu", function(e) { e.preventDefault(); return false; });
-    (function detectDevTools() {
-      const threshold = 160;
-      function check() {
-        if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
-          document.body.innerHTML = "<div style='display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#c0392b;font-size:1.5rem;font-weight:bold;'>⚠️ Herramientas de desarrollador no permitidas.</div>";
-        }
-      }
-      setInterval(check, 1000);
-    })();
-  </script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
-  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
   <style>
     :root {
-      --primary: #F47C20;
-      --primary-dark: #e06b10;
-      --success: #28a745;
+      --primary: #003772;
       --accent: #0074B7;
+      --success: #15803d;
+      --success-dark: #116a32;
       --highlight: #FFD447;
+      --danger: #dc2626;
       --text-dark: #1C3F60;
-      --text-soft: #666;
-      --border: rgba(0,0,0,0.08);
-      --shadow: 0 8px 32px rgba(0,0,0,0.08);
+      --text-soft: #64748b;
+      --border: #e5e9ef;
+      --bg-soft: #f6f8fb;
+      --shadow: 0 8px 28px rgba(0, 35, 80, 0.07);
       --radius: 16px;
-      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-padding-top: 80px; }
     body {
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #fff8f0 0%, #e6f7ff 100%);
+      font-family: 'Inter', system-ui, sans-serif;
+      background: linear-gradient(135deg, #fff8f0 0%, #eef7fd 100%);
       color: var(--text-dark);
       min-height: 100vh;
-      padding: 1.5rem 1rem 180px;
-      line-height: 1.6;
+      line-height: 1.55;
     }
+    button, input, select, textarea { font-family: inherit; }   /* todos los botones con la letra del sitio */
 
-    .c {
-      max-width: 700px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
+    /* ── Encabezado compacto (igual al catálogo) ── */
+    .encabezado {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(255,255,255,0.97); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border); box-shadow: 0 2px 12px rgba(0,0,0,0.04);
     }
+    .encabezado-inner { max-width: 1040px; margin: 0 auto; padding: 0.6rem 1rem; display: flex; align-items: center; gap: 0.75rem; }
+    .seguir {
+      display: inline-flex; align-items: center; gap: 6px; background: none; border: 1px solid var(--border);
+      color: var(--primary); font-weight: 700; font-size: 0.85rem; padding: 0.5rem 0.85rem; border-radius: 999px; cursor: pointer;
+      transition: var(--transition); white-space: nowrap;
+    }
+    .seguir:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .marca { display: flex; align-items: center; gap: 0.6rem; margin-left: auto; min-width: 0; text-decoration: none; color: inherit; }
+    .marca img { width: 38px; height: 38px; border-radius: 9px; flex-shrink: 0; }
+    .marca h1 { font-size: 1.1rem; font-weight: 800; color: var(--primary); white-space: nowrap; }
+    .marca .cuenta { font-size: 0.8rem; color: var(--text-soft); font-weight: 600; white-space: nowrap; }
 
-    header {
-      background: white;
-      padding: 2rem 1rem;
-      text-align: center;
-      border-bottom: 1px solid var(--border);
-    }
-    header img.logo {
-      width: 150px;
-      margin-bottom: 0.5rem;
-      border-radius: 12px;
-    }
-    header h1 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--accent), var(--primary));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
+    /* ── Distribución: pasos a la izquierda, resumen a la derecha (en PC) ── */
+    .pagina { max-width: 1040px; margin: 0 auto; padding: 1.25rem 1rem 2rem; display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 1.25rem; align-items: start; }
+    .pasos { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
 
-    /* PRODUCTOS EN LISTA */
-    .i {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1.2rem;
-      border-bottom: 1px solid var(--border);
-      position: relative;
-    }
-    .img-wrap {
-      width: 80px;
-      height: 80px;
-      flex-shrink: 0;
-      position: relative;
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .i img { width: 90%; height: 90%; object-fit: contain; }
-    
-    .info { flex-grow: 1; }
-    .info h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.2rem; color: var(--text-dark); }
-    .pr { color: var(--primary); font-weight: 700; font-size: 1.1rem; }
-    
-    /* CONTROLES DE CANTIDAD (STEPPER) */
-    .stepper {
-      display: flex;
-      align-items: center;
-      background: #f8f9fa;
-      border-radius: 50px;
-      padding: 4px;
-      border: 1px solid var(--border);
-    }
-    .stepper button {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      border: none;
-      background: white;
-      color: var(--text-dark);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: var(--transition);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-    .stepper button:hover { background: var(--primary); color: white; }
-    .stepper button.del:hover { background: #e74c3c; }
-    .stepper .count {
-      width: 35px;
-      text-align: center;
-      font-weight: 700;
-      font-size: 0.9rem;
-    }
+    .tarjeta { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    .tarjeta-cab { display: flex; align-items: center; gap: 0.6rem; padding: 1rem 1.2rem; border-bottom: 1px solid var(--border); }
+    .num { width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: #fff; font-weight: 800; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .tarjeta-cab h2 { font-size: 1.02rem; font-weight: 800; }
+    .tarjeta-cab .extra { margin-left: auto; font-size: 0.8rem; color: var(--text-soft); font-weight: 600; }
+    .tarjeta-cuerpo { padding: 1.1rem 1.2rem 1.2rem; }
 
-    /* SECCIONES DE FORMULARIO */
-    .se {
-      background: #fcfcfc;
-      padding: 1.5rem;
-      border-top: 1px solid var(--border);
-    }
-    .se h3 {
-      margin-bottom: 1rem;
-      color: var(--text-dark);
-      font-size: 1.1rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    select, textarea {
-      width: 100%;
-      padding: 0.9rem;
-      border-radius: 12px;
-      border: 1.5px solid var(--border);
-      font-family: inherit;
-      font-size: 0.95rem;
-      margin-bottom: 1rem;
-      transition: var(--transition);
-    }
-    select:focus, textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(244,124,32,0.1);
-    }
+    /* ── 1. Productos ── */
+    .i { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; gap: 0.9rem; align-items: center; padding: 1rem 1.2rem; border-bottom: 1px solid var(--border); }
+    .i:last-child { border-bottom: none; }
+    .img-wrap { width: 76px; height: 76px; background: #fff; border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .img-wrap img { width: 88%; height: 88%; object-fit: contain; }
+    .info { min-width: 0; }
+    .info h3 { font-size: 0.9rem; font-weight: 600; line-height: 1.35; margin-bottom: 0.25rem; text-transform: uppercase; }
+    .precios { display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; }
+    .pr { color: var(--primary); font-weight: 800; font-size: 1.05rem; }
+    .unit { font-size: 0.78rem; color: var(--text-soft); font-weight: 600; }
+    .tag-fragil { display: inline-flex; align-items: center; gap: 4px; font-size: .68rem; font-weight: 800; text-transform: uppercase; color: #b45309; background: #fff4e5; border: 1px solid #fcd9a8; border-radius: 5px; padding: 1px 7px; margin: 0 0 4px; }
 
-    .op {
-      margin-bottom: 0.8rem;
-      padding: 0.8rem;
-      background: white;
-      border: 1.5px solid var(--border);
-      border-radius: 12px;
-      cursor: pointer;
-    }
-    .op label { cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%; }
-    .op input[type="radio"] { accent-color: var(--primary); width: 18px; height: 18px; }
+    .stepper { display: flex; align-items: center; background: var(--bg-soft); border-radius: 50px; padding: 3px; border: 1px solid var(--border); }
+    .stepper button { width: 32px; height: 32px; border-radius: 50%; border: none; background: #fff; color: var(--text-dark); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition); box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .stepper button:hover { background: var(--primary); color: #fff; }
+    .stepper button.del:hover { background: var(--danger); }
+    .stepper .count { min-width: 32px; text-align: center; font-weight: 800; font-size: 0.9rem; }
+    .vaciar { display: block; margin: 0 auto; padding: 0.7rem; background: none; border: none; color: var(--text-soft); font-size: 0.82rem; cursor: pointer; text-decoration: underline; }
+    .vaciar:hover { color: var(--danger); }
 
-    .n {
-      padding: 0.9rem;
-      background: #eef7ff;
-      border-radius: 12px;
-      font-size: 0.85rem;
-      color: var(--accent);
-      border-left: 4px solid var(--accent);
+    /* ── Formularios ── */
+    .campos { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+    .campo { display: flex; flex-direction: column; gap: 0.3rem; }
+    .campo.ancho { grid-column: 1 / -1; }
+    .campo label { font-size: 0.82rem; font-weight: 700; }
+    .campo label .opc { font-weight: 500; color: var(--text-soft); }
+    .campo label .req { color: var(--danger); }
+    input[type="text"], input[type="tel"], select, textarea {
+      width: 100%; padding: 0.75rem 0.85rem; border-radius: 11px; border: 1.5px solid var(--border);
+      font-size: 0.95rem; color: var(--text-dark); background: #fff; transition: var(--transition);
     }
+    textarea { min-height: 70px; resize: vertical; }
+    select {
+      appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 2.4rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 16 16' fill='%23003772'%3E%3Cpath d='M1.6 4.6a.75.75 0 0 1 1.06 0L8 9.94l5.34-5.34a.75.75 0 1 1 1.06 1.06l-5.87 5.87a.75.75 0 0 1-1.06 0L1.6 5.66a.75.75 0 0 1 0-1.06z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 0.9rem center;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,116,183,0.12); }
+    .campo.error input, .campo.error select { border-color: var(--danger); background: #fff7f7; }
+    .msg-error { font-size: 0.75rem; color: var(--danger); font-weight: 600; display: none; }
+    .campo.error .msg-error { display: block; }
+    .recordar { font-size: 0.75rem; color: var(--text-soft); margin-top: 0.7rem; display: flex; align-items: center; gap: 5px; }
 
-    /* RESUMEN */
-    .r {
-      background: #f8f9fa;
-      padding: 1.5rem;
-      border-top: 1px solid var(--border);
-    }
-    .l {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.5rem;
-      color: var(--text-soft);
-    }
-    .tot {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text-dark);
-      border-top: 2px dashed var(--border);
-      padding-top: 1rem;
-      margin-top: 1rem;
-    }
-    .tot strong { color: var(--primary); }
+    .n { margin-top: 0.7rem; padding: 0.7rem 0.85rem; background: #eef6fd; border-radius: 11px; font-size: 0.8rem; line-height: 1.5; color: #12507a; border-left: 4px solid var(--accent); }
+    .n a { color: var(--accent); font-weight: 700; }
 
-    /* BOTONES */
+    /* ── 3. Pago ── */
+    .op { display: block; margin-bottom: 0.6rem; }
+    .op:last-child { margin-bottom: 0; }
+    .op label { display: flex; align-items: center; gap: 10px; padding: 0.8rem 0.9rem; border: 1.5px solid var(--border); border-radius: 12px; cursor: pointer; transition: var(--transition); background: #fff; }
+    .op label:hover { border-color: #b9d4ea; }
+    .op input[type="radio"] { accent-color: var(--primary); width: 18px; height: 18px; flex-shrink: 0; }
+    .op label:has(input:checked) { border-color: var(--primary); background: #f3f8fd; }
+    .op .det { display: block; font-size: 0.78rem; color: var(--text-soft); font-weight: 500; }
+    .op .det.alerta { color: #c2410c; font-weight: 700; }
+    .op .ico { margin-left: auto; color: var(--accent); font-size: 1.15rem; }
+
+    /* ── Resumen ── */
+    .resumen { position: sticky; top: 76px; }
+    .l { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 0.45rem; color: var(--text-soft); font-size: 0.92rem; }
+    .l span:last-child { font-weight: 600; color: var(--text-dark); }
+    #rec, #rec span:last-child { color: #c2410c; }
+    .tot { font-size: 1.25rem; font-weight: 800; color: var(--text-dark); border-top: 2px dashed var(--border); padding-top: 0.8rem; margin-top: 0.8rem; align-items: baseline; }
+    .tot strong { color: var(--primary); font-size: 1.45rem; }
+    .acepto-fragil { display: flex; gap: .6rem; align-items: flex-start; margin-top: 1rem; padding: .75rem .85rem; background: #fff8ee; border: 1.5px solid #fbbf24; border-radius: 12px; font-size: .8rem; line-height: 1.45; color: #78350f; cursor: pointer; }
+    .acepto-fragil input { width: 19px; height: 19px; flex-shrink: 0; margin-top: 1px; accent-color: #b45309; }
+    .acepto-fragil a { color: #b45309; font-weight: 700; }
+    .acepto-fragil[hidden], .error-fragil[hidden] { display: none; }
+    .error-fragil { margin-top: .5rem; color: var(--danger); font-size: .8rem; font-weight: 700; }
+    .acepto-politicas { display: flex; gap: .6rem; align-items: flex-start; margin-top: 1rem; padding: .75rem .85rem; background: #f3f8fd; border: 1.5px solid #b9d4ea; border-radius: 12px; font-size: .8rem; line-height: 1.45; color: var(--text-dark); cursor: pointer; }
+    .acepto-politicas input { width: 19px; height: 19px; flex-shrink: 0; margin-top: 1px; accent-color: var(--primary); }
+    .acepto-politicas a { color: var(--accent); font-weight: 700; }
+    .acepto-politicas.falta, .acepto-fragil.falta { border-color: var(--danger); background: #fff5f5; }
+    #error-politicas[hidden] { display: none; }
+    .aviso-politicas { font-size: .78rem; color: var(--text-soft); margin: 1rem 0 0.8rem; line-height: 1.5; }
+    .aviso-politicas .bi { color: var(--success); }
+    .aviso-politicas a { color: var(--accent); font-weight: 600; }
     .btn {
-      display: block; width: calc(100% - 2.4rem); margin: 1rem 1.2rem;
-      padding: 1.1rem; border-radius: 14px;
-      font-size: 1.1rem; font-weight: 700;
-      text-align: center; border: none; cursor: pointer;
-      transition: var(--transition);
-      background: var(--success); color: white;
-      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+      display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+      padding: 1rem; border-radius: 14px; font-size: 1.05rem; font-weight: 800; border: none; cursor: pointer;
+      background: var(--success); color: #fff; box-shadow: 0 4px 15px rgba(34,164,71,0.25); transition: var(--transition);
     }
-    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3); }
-    
-    .btn-vaciar {
-      display: block; width: calc(100% - 2.4rem); margin: 0 1.2rem;
-      padding: 0.8rem; background: none; color: #999;
-      border: none; font-size: 0.9rem; cursor: pointer;
-      text-decoration: underline;
-    }
+    .btn:hover { background: var(--success-dark); transform: translateY(-1px); }
+    .seguro { text-align: center; font-size: 0.74rem; color: var(--text-soft); margin-top: 0.6rem; }
 
-    #boton-volver {
-      position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
-      background: white; padding: 0.8rem 1.5rem; border-radius: 30px;
-      box-shadow: var(--shadow); text-decoration: none; color: var(--text-dark);
-      font-weight: 600; z-index: 998; border: 1px solid var(--border);
-      display: flex; align-items: center; gap: 8px;
-      cursor: pointer;
-    }
+    /* ── Barra fija en celular: total + enviar ── */
+    .barra-movil { display: none; }
 
-    footer {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
-      padding: 1rem; text-align: center; border-top: 1px solid var(--border);
-    }
+    /* ── Carrito vacío ── */
+    .vacio { text-align: center; padding: 3.5rem 1.5rem; }
+    .vacio .bi-cart-x { font-size: 3.6rem; color: #c9d3de; }
+    .vacio h2 { margin-top: 0.8rem; font-size: 1.3rem; }
+    .vacio p { margin-top: 0.4rem; color: var(--text-soft); }
+    .btn-tienda { display: inline-flex; align-items: center; gap: 8px; margin-top: 1.4rem; padding: 0.85rem 1.4rem; border-radius: 999px; background: var(--primary); color: #fff; font-weight: 700; text-decoration: none; }
+    .btn-tienda:hover { filter: brightness(1.15); }
 
-    @media (max-width:480px) {
-      body { padding: 1rem 0.5rem 180px; }
-      header h1 { font-size: 1.5rem; }
-      .i { padding: 0.8rem; }
-      .img-wrap { width: 65px; height: 65px; }
+    footer { text-align: center; padding: 0.5rem 1rem 1.5rem; font-size: 0.75rem; color: var(--text-soft); }
+    footer a { color: inherit; }
+
+    @media (max-width: 860px) {
+      .pagina { grid-template-columns: minmax(0, 1fr); }
+      .resumen { position: static; }
+    }
+    @media (max-width: 600px) {
+      .encabezado-inner { padding: 0.5rem 0.75rem; }
+      .seguir span { display: none; }            /* en celular solo la flecha */
+      .seguir { padding: 0.5rem 0.7rem; }
+      .marca h1 { font-size: 1rem; }
+      .pagina { padding: 0.9rem 0.6rem 6.5rem; gap: 0.8rem; }
+      .tarjeta-cab, .tarjeta-cuerpo { padding-left: 0.95rem; padding-right: 0.95rem; }
+      .campos { grid-template-columns: 1fr; }
+      /* Producto: foto + nombre arriba; precio y cantidad en una fila abajo */
+      .i { grid-template-columns: 64px minmax(0, 1fr); padding: 0.9rem 0.95rem; row-gap: 0.55rem; }
+      .img-wrap { width: 64px; height: 64px; }
       .info h3 { font-size: 0.85rem; }
+      .stepper { grid-column: 2; justify-self: start; }
+      .barra-movil {
+        display: flex; align-items: center; gap: 0.75rem; position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+        background: rgba(255,255,255,0.98); backdrop-filter: blur(12px); border-top: 1px solid var(--border);
+        padding: 0.65rem 0.9rem calc(0.65rem + env(safe-area-inset-bottom)); box-shadow: 0 -4px 18px rgba(0,0,0,0.07);
+      }
+      .barra-movil[hidden] { display: none; }
+      .barra-movil .bm-total { display: flex; flex-direction: column; line-height: 1.15; }
+      .barra-movil .bm-total small { font-size: 0.72rem; color: var(--text-soft); font-weight: 600; }
+      .barra-movil .bm-total strong { font-size: 1.15rem; color: var(--primary); }
+      .barra-movil .btn-barra { margin-left: auto; display: inline-flex; align-items: center; gap: 7px; border: none; border-radius: 12px; padding: 0.8rem 1.1rem; background: var(--success); color: #fff; font-weight: 800; font-size: 0.95rem; cursor: pointer; }
     }
   </style>
 </head>
 <body>
 
-  <div class="c">
-    <header>
-      <img id="logo-header" src="" alt="Logo" class="logo">
-      <h1 id="main-title">Tu Carrito</h1>
-    </header>
-
-    <div id="lista"></div>
-
-    <div id="lleno" style="display:none">
-      <div class="se">
-        <h3><i class="bi bi-geo-alt"></i> Zona de Entrega</h3>
-        <select id="zona">
-          <option value="25">Ciudad de Guatemala - Q25</option>
-          <option value="35">Mixco, Fraijanes, Villa Nueva, etc. - Q35</option>
-          <option value="40" selected>Departamentos (todo el país) - Q40</option>
-        </select>
-        <div class="n"><strong>Nota:</strong> El costo de envío es base y puede variar según dimensiones. ¡Confirmamos por WhatsApp!</div>
-
-        <h3 style="margin-top:1.5rem"><i class="bi bi-credit-card"></i> Método de Pago</h3>
-        <div class="op">
-          <label><input type="radio" name="pago" value="t" checked> <span>Transferencia / Depósito Bancario</span></label>
+  <header class="encabezado">
+    <div class="encabezado-inner">
+      <button type="button" class="seguir" id="boton-volver" onclick="irAtras()" aria-label="Seguir comprando">
+        <i class="bi bi-arrow-left"></i><span>Seguir comprando</span>
+      </button>
+      <a class="marca" href="index.html" aria-label="Miika: ir al Inicio">
+        <img id="logo-header" src="img/Miika-300.webp" alt="Miika" width="38" height="38">
+        <div>
+          <h1 id="main-title">Tu pedido</h1>
+          <div class="cuenta" id="cuenta-productos"></div>
         </div>
-        <div class="op">
-          <label><input type="radio" name="pago" value="c"> <span>Contraentrega <b style="color:#e74c3c">(+5% en Deptos.)</b></span></label>
+      </a>
+    </div>
+  </header>
+
+  <!-- Carrito vacío -->
+  <main class="pagina" id="vacio" style="display:none">
+    <section class="tarjeta vacio" style="grid-column: 1 / -1">
+      <i class="bi bi-cart-x"></i>
+      <h2>Tu carrito está vacío</h2>
+      <p>Aún no has agregado productos a tu pedido.</p>
+      <a class="btn-tienda" href="index.html"><i class="bi bi-grid-fill"></i> Explorar el catálogo</a>
+    </section>
+  </main>
+
+  <!-- Carrito con productos -->
+  <main class="pagina" id="lleno" style="display:none">
+    <div class="pasos">
+
+      <!-- 1. Productos -->
+      <section class="tarjeta" aria-labelledby="t-productos">
+        <div class="tarjeta-cab"><span class="num">1</span><h2 id="t-productos">Productos</h2><span class="extra" id="extra-productos"></span></div>
+        <div id="lista"></div>
+        <button type="button" class="vaciar" onclick="vaciarCarrito()"><i class="bi bi-trash3"></i> Vaciar carrito</button>
+      </section>
+
+      <!-- 2. Entrega -->
+      <section class="tarjeta" aria-labelledby="t-entrega">
+        <div class="tarjeta-cab"><span class="num">2</span><h2 id="t-entrega">Datos de entrega</h2></div>
+        <div class="tarjeta-cuerpo">
+          <div class="campos">
+            <div class="campo">
+              <label for="c-nombre">Nombre completo <span class="req">*</span></label>
+              <input type="text" id="c-nombre" autocomplete="name" placeholder="Ej. María López">
+              <span class="msg-error">Escribe tu nombre.</span>
+            </div>
+            <div class="campo">
+              <label for="c-telefono">Teléfono <span class="opc">(opcional)</span></label>
+              <input type="tel" id="c-telefono" autocomplete="tel" inputmode="tel" placeholder="Si es distinto a tu WhatsApp">
+            </div>
+            <div class="campo ancho">
+              <label for="c-direccion">Dirección de entrega <span class="req">*</span></label>
+              <input type="text" id="c-direccion" autocomplete="street-address" placeholder="Calle, avenida, número, colonia o condominio">
+              <span class="msg-error">Escribe la dirección de entrega.</span>
+            </div>
+            <div class="campo ancho">
+              <label for="c-municipio">Municipio y departamento <span class="req">*</span></label>
+              <input type="text" id="c-municipio" autocomplete="address-level2" placeholder="Ej. Zona 10, Guatemala · Cobán, Alta Verapaz">
+              <span class="msg-error">Escribe el municipio y departamento.</span>
+            </div>
+            <div class="campo ancho">
+              <label for="zona">Zona de entrega <span class="req">*</span></label>
+              <!-- v9: tarifas según envíos reales (nov. 2026). data-recargo="1" = cobra 5% si paga contra entrega -->
+              <select id="zona">
+                <option value="25">Capital, zonas 1–15 y 17 - Q25</option>
+                <option value="35">Zonas 16, 18, 19, 21 y metropolitana - Q35</option>
+                <option value="40" data-recargo="1">Amatitlán, S. Juan Sac. y alrededores - Q40</option>
+                <option value="45" data-recargo="1" selected>Departamentos: cabeceras - Q45</option>
+                <option value="55" data-recargo="1">Departamentos: aldeas y lejanos - Q55</option>
+              </select>
+              <div class="n"><i class="bi bi-truck"></i> Tarifa base por paquete. Puede variar porque el courier cambia sus precios y condiciones sin previo aviso; <strong>te confirmamos el costo exacto por WhatsApp.</strong> <a href="politicas.html#envios" target="_blank" rel="noopener">Ver zonas</a></div>
+            </div>
+            <div class="campo ancho">
+              <label for="notas">Referencias u horario <span class="opc">(opcional)</span></label>
+              <textarea id="notas" placeholder="Ej. Casa verde frente al parque. Entregar después de las 4 pm o llamar al llegar."></textarea>
+            </div>
+          </div>
+          <p class="recordar"><i class="bi bi-lock"></i> Tus datos se guardan solo en este dispositivo para tu próxima compra.</p>
         </div>
+      </section>
 
-        <h3 style="margin-top:1.5rem"><i class="bi bi-chat-left-text"></i> Notas del pedido</h3>
-        <textarea id="notas" placeholder="Ej. Entregar después de las 4pm o llamar al llegar..."></textarea>
-      </div>
+      <!-- 3. Pago -->
+      <section class="tarjeta" aria-labelledby="t-pago">
+        <div class="tarjeta-cab"><span class="num">3</span><h2 id="t-pago">Forma de pago</h2></div>
+        <div class="tarjeta-cuerpo">
+          <div class="op"><label><input type="radio" name="pago" value="t" checked> <span>Transferencia o depósito bancario</span><i class="bi bi-bank ico"></i></label></div>
+          <div class="op"><label><input type="radio" name="pago" value="c"> <span>Pago contra entrega <span class="det alerta">+5% fuera del área metropolitana</span></span><i class="bi bi-cash-coin ico"></i></label></div>
+          <div class="op"><label><input type="radio" name="pago" value="v"> <span>Tarjeta Visa <span class="det">Aplican restricciones; te confirmamos por WhatsApp</span></span><i class="bi bi-credit-card ico"></i></label></div>
+        </div>
+      </section>
+    </div>
 
-      <div class="r">
+    <!-- 4. Resumen y confirmación -->
+    <aside class="tarjeta resumen" aria-labelledby="t-resumen" id="resumen">
+      <div class="tarjeta-cab"><span class="num">4</span><h2 id="t-resumen">Resumen y confirmación</h2></div>
+      <div class="tarjeta-cuerpo">
         <div class="l"><span>Subtotal</span> <span id="sub">Q0.00</span></div>
-        <div class="l"><span>Envío estimado</span> <span id="env">Q40.00</span></div>
-        <div class="l" id="rec" style="display:none;color:#e74c3c"><span>Recargo contraentrega (5%)</span> <span id="re">Q0.00</span></div>
-        <div class="l tot"><span>Total a pagar</span> <strong id="tot">Q40.00</strong></div>
+        <div class="l"><span>Envío estimado</span> <span id="env">Q0.00</span></div>
+        <div class="l" id="rec" style="display:none"><span>Recargo contra entrega (5%)</span> <span id="re">Q0.00</span></div>
+        <div class="l tot"><span>Total</span> <strong id="tot">Q0.00</strong></div>
+
+        <label class="acepto-fragil" id="caja-fragil" hidden>
+          <input type="checkbox" id="acepto-fragil">
+          <span><strong>Acepto el riesgo de los productos frágiles</strong> (<span id="n-fragiles"></span>): Miika los empaca con protección reforzada, pero viajan bajo mi riesgo y no responde por roturas o daños causados por la empresa de mensajería. <a href="politicas.html#fragiles" target="_blank" rel="noopener">Ver condiciones</a></span>
+        </label>
+        <p class="error-fragil" id="error-fragil" hidden><i class="bi bi-exclamation-circle"></i> Para enviar tu pedido, marca la casilla de productos frágiles.</p>
+
+        <!-- v9: aceptación obligatoria de las políticas en TODOS los pedidos (queda escrita en el mensaje de WhatsApp) -->
+        <label class="acepto-politicas" id="caja-politicas">
+          <input type="checkbox" id="acepto-politicas">
+          <span>He leído y acepto las <a href="politicas.html" target="_blank" rel="noopener">políticas de compra</a>: confirmé medidas y modelo, <strong>no hay cambios por cambio de opinión</strong> y cualquier problema lo reporto el mismo día de la entrega.</span>
+        </label>
+        <p class="error-fragil" id="error-politicas" hidden><i class="bi bi-exclamation-circle"></i> Para enviar tu pedido, acepta las políticas de compra.</p>
+        <p class="aviso-politicas"><i class="bi bi-shield-check"></i> Revisamos tu pedido antes de enviarlo.</p>
+        <button type="button" class="btn" id="btn-enviar" onclick="fin()"><i class="bi bi-whatsapp"></i> Enviar pedido por WhatsApp</button>
+        <p class="seguro"><i class="bi bi-chat-dots"></i> No pagas nada todavía: te confirmamos existencia y costo final por WhatsApp.</p>
       </div>
+    </aside>
+  </main>
 
-      <button class="btn" onclick="fin()"><i class="bi bi-whatsapp"></i> Enviar pedido por WhatsApp</button>
-      <button class="btn-vaciar" onclick="vaciarCarrito()">Vaciar carrito</button>
-    </div>
-
-    <div id="vacio" style="text-align:center;padding:5rem 2rem;display:none">
-      <i class="bi bi-cart-x" style="font-size:4rem; color:#ccc"></i>
-      <h2 style="margin-top:1rem">Tu carrito está vacío</h2>
-      <p style="margin-top:0.5rem; color:var(--text-soft)">¡Aún no has agregado equipos a tu pedido!</p>
-      <a href="index.html" style="display:inline-block; margin-top:1.5rem; color:var(--accent); font-weight:700;">Ir a la tienda</a>
-    </div>
+  <!-- Celular: total y botón siempre a la vista -->
+  <div class="barra-movil" id="barra-movil" role="region" aria-label="Total del pedido" hidden>
+    <div class="bm-total"><small>Total</small><strong id="bm-tot">Q0.00</strong></div>
+    <button type="button" class="btn-barra" onclick="fin()"><i class="bi bi-whatsapp"></i> Enviar pedido</button>
   </div>
 
-  <button onclick="irAtras()" id="boton-volver">
-    <i class="bi bi-arrow-left-circle"></i> Volver a la tienda
-  </button>
-
   <footer>
-    <p id="footer-text" style="font-size:0.75rem; color:var(--text-soft)"></p>
+    <p id="footer-text"></p>
   </footer>
 
   <script>
     const CONFIG = {
-      nombreNegocio: "Flamax",
-      telefonoWhatsApp: "50241084481",
+      nombreNegocio: "Miika",
+      telefonoWhatsApp: "50253410701",
       simboloMoneda: "Q",
-      logoImg: "img/Flamax-v1.png",
-      faviconImg: "img/Flamax-v1.ico",
-      colores: {
-        primario: "#003772",
-        acento: "#0074B7"
-      }
+      logoImg: "img/Miika-300.webp",
+      faviconImg: "/favicon.ico?v=2",
+      colores: { primario: "#003772", acento: "#0074B7" },
+      versionPoliticas: "8 de noviembre de 2026"   // v9: actualizar cuando cambie politicas.html
     };
 
     const aplicarConfig = () => {
-      document.title = `🛒 Carrito | ${CONFIG.nombreNegocio}`;
+      document.title = `🛒 Tu pedido | ${CONFIG.nombreNegocio}`;
       document.getElementById("logo-header").src = CONFIG.logoImg;
       document.getElementById("meta-theme-color").content = CONFIG.colores.primario;
       document.getElementById("favicon").href = CONFIG.faviconImg;
-      document.getElementById("footer-text").innerHTML = `© 2026 <strong>${CONFIG.nombreNegocio}</strong> | Guatemala`;
-      
+      document.getElementById("footer-text").innerHTML = `© 2026 <strong>${CONFIG.nombreNegocio}</strong> | Guatemala | <a href="politicas.html">Políticas de compra</a> | <a href="privacidad.html">Política de privacidad</a>`;
       const root = document.documentElement;
       root.style.setProperty('--primary', CONFIG.colores.primario);
       root.style.setProperty('--accent', CONFIG.colores.acento);
     };
-
     aplicarConfig();
 
     // ==========================================
@@ -353,126 +361,192 @@
     const $ = s => document.getElementById(s);
     const zona = $('zona');
     const notas = $('notas');
+    const Q = (n) => `${CONFIG.simboloMoneda}${n.toFixed(2)}`;
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
     // Volver a la tienda manteniendo el estado
     window.irAtras = () => {
-        if (document.referrer.indexOf(window.location.host) !== -1) {
-            history.back(); // Vuelve exacto a donde estaba
-        } else {
-            window.location.href = 'index.html'; // Fallback
-        }
+      if (document.referrer.indexOf(window.location.host) !== -1) history.back();
+      else window.location.href = 'index.html';
     };
+
+    // v9: productos frágiles (el catálogo los marca; para carritos viejos se detecta por el nombre)
+    const PALABRAS_FRAGIL = ["VIDRIO", "CRISTAL", "CRISTALERIA", "CERAMICA", "PORCELANA", "LOZA", "COPA", "COPAS", "ESPEJO"];
+    const esFragil = (i) => typeof i.fragil === "boolean" ? i.fragil
+      : String(i.titulo || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().split(/[^A-Z0-9]+/).some(p => PALABRAS_FRAGIL.includes(p));
+
+    // v9: datos del cliente (se recuerdan solo en este navegador)
+    const CAMPOS = { nombre: 'c-nombre', telefono: 'c-telefono', direccion: 'c-direccion', municipio: 'c-municipio' };
+    const OBLIGATORIOS = ['nombre', 'direccion', 'municipio'];
+    const cargarDatos = () => {
+      try {
+        const d = JSON.parse(localStorage.getItem("datosCliente") || "{}");
+        Object.entries(CAMPOS).forEach(([k, id]) => { if (d[k]) $(id).value = d[k]; });
+        if (d.zona && [...zona.options].some(o => o.value === d.zona)) zona.value = d.zona;
+      } catch (e) {}
+    };
+    const guardarDatos = () => {
+      try {
+        const d = { zona: zona.value };
+        Object.entries(CAMPOS).forEach(([k, id]) => d[k] = $(id).value.trim());
+        localStorage.setItem("datosCliente", JSON.stringify(d));
+      } catch (e) {}
+    };
+    Object.values(CAMPOS).forEach(id => $(id).addEventListener('input', () => { $(id).closest('.campo').classList.remove('error'); guardarDatos(); }));
 
     const agrupar = () => {
       const map = {};
-      JSON.parse(localStorage.getItem("carrito")||"[]").forEach(p => {
-        map[p.id] ? (map[p.id].c += 1, map[p.id].t += p.precio) : (map[p.id] = {...p, c:1, t:p.precio});
+      JSON.parse(localStorage.getItem("carrito") || "[]").forEach(p => {
+        map[p.id] ? (map[p.id].c += 1, map[p.id].t += p.precio) : (map[p.id] = { ...p, c: 1, t: p.precio });
       });
       return Object.values(map);
     };
 
     const act = () => {
       const items = agrupar();
+      const fragiles = items.filter(esFragil);
+      $('caja-fragil').hidden = fragiles.length === 0;
+      $('n-fragiles').textContent = fragiles.map(f => f.titulo).join(", ");
+      if (!fragiles.length) $('acepto-fragil').checked = false;
+
+      const unidades = items.reduce((a, b) => a + b.c, 0);
+      $('cuenta-productos').textContent = unidades ? `${unidades} producto${unidades !== 1 ? "s" : ""}` : "";
+      $('extra-productos').textContent = items.length ? `${items.length} artículo${items.length !== 1 ? "s" : ""}` : "";
       $('lista').innerHTML = "";
       if (!items.length) {
-        $('vacio').style.display = "block";
+        $('vacio').style.display = "grid";
         $('lleno').style.display = "none";
+        $('barra-movil').hidden = true;
         return;
       }
       $('vacio').style.display = "none";
-      $('lleno').style.display = "block";
+      $('lleno').style.display = "grid";
+      $('barra-movil').hidden = false;
 
-      items.forEach(i => {
+      $('lista').innerHTML = items.map(i => {
         const imgPath = Array.isArray(i.imagen) ? i.imagen[0] : i.imagen;
-        $('lista').innerHTML += `
+        return `
           <div class="i">
-            <div class="img-wrap">
-              <img src="${imgPath||'img/placeholder.png'}" alt="${i.titulo}">
-            </div>
+            <div class="img-wrap"><img src="${esc(imgPath || 'img/Miika-300.webp')}" alt="" onerror="this.src='img/Miika-300.webp'"></div>
             <div class="info">
-              <h3>${i.titulo}</h3>
-              <p class="pr">${CONFIG.simboloMoneda}${i.t.toFixed(2)}</p>
+              <h3>${esc(i.titulo)}</h3>
+              ${esFragil(i) ? '<span class="tag-fragil"><i class="bi bi-exclamation-triangle-fill"></i> Frágil</span>' : ''}
+              <div class="precios">
+                <span class="pr">${Q(i.t)}</span>
+                ${i.c > 1 ? `<span class="unit">${Q(i.precio)} c/u</span>` : ''}
+              </div>
             </div>
-            <div class="stepper">
-                <button class="${i.c === 1 ? 'del' : ''}" onclick="cambiarCant('${i.id}', -1)">
-                    <i class="bi bi-${i.c === 1 ? 'trash' : 'dash'}"></i>
-                </button>
-                <div class="count">${i.c}</div>
-                <button onclick="cambiarCant('${i.id}', 1)">
-                    <i class="bi bi-plus"></i>
-                </button>
+            <div class="stepper" aria-label="Cantidad">
+              <button type="button" class="${i.c === 1 ? 'del' : ''}" onclick="cambiarCant('${esc(i.id)}', -1)" aria-label="${i.c === 1 ? 'Quitar' : 'Restar uno'}">
+                <i class="bi bi-${i.c === 1 ? 'trash3' : 'dash'}"></i>
+              </button>
+              <div class="count">${i.c}</div>
+              <button type="button" onclick="cambiarCant('${esc(i.id)}', 1)" aria-label="Sumar uno"><i class="bi bi-plus"></i></button>
             </div>
           </div>`;
-      });
+      }).join("");
       calc();
     };
 
-    const calc = () => {
+    const totales = () => {
       const items = agrupar();
-      const subtotal = items.reduce((a,b)=>a+b.t,0);
+      const subtotal = items.reduce((a, b) => a + b.t, 0);
       const envio = +zona.value;
-      const esDepartamento = envio === 40;
-      const contraentrega = document.querySelector('input[name="pago"][value="c"]').checked;
-      const recargo = (esDepartamento && contraentrega) ? (subtotal + envio) * 0.05 : 0;
-
-      $('sub').textContent = `${CONFIG.simboloMoneda}${subtotal.toFixed(2)}`;
-      $('env').textContent = `${CONFIG.simboloMoneda}${envio.toFixed(2)}`;
-      $('rec').style.display = recargo ? "flex" : "none";
-      $('re').textContent = `${CONFIG.simboloMoneda}${recargo.toFixed(2)}`;
-      $('tot').textContent = `${CONFIG.simboloMoneda}${(subtotal + envio + recargo).toFixed(2)}`;
+      const aplicaRecargo = zona.selectedOptions[0].dataset.recargo === "1";   // depende de la zona, no del precio
+      const contraEntrega = document.querySelector('input[name="pago"][value="c"]').checked;
+      const recargo = (aplicaRecargo && contraEntrega) ? (subtotal + envio) * 0.05 : 0;
+      return { items, subtotal, envio, recargo, total: subtotal + envio + recargo };
     };
 
-    // NUEVA FUNCIÓN: Cambiar cantidad
+    const calc = () => {
+      const t = totales();
+      $('sub').textContent = Q(t.subtotal);
+      $('env').textContent = Q(t.envio);
+      $('rec').style.display = t.recargo ? "flex" : "none";
+      $('re').textContent = Q(t.recargo);
+      $('tot').textContent = Q(t.total);
+      $('bm-tot').textContent = Q(t.total);
+    };
+
     window.cambiarCant = (id, delta) => {
-        let c = JSON.parse(localStorage.getItem("carrito")||"[]");
-        if (delta > 0) {
-            // Agregar uno nuevo buscando el objeto existente
-            const p = c.find(x => x.id === id);
-            c.push({...p});
-        } else {
-            // Eliminar la primera coincidencia
-            const idx = c.findIndex(p => p.id === id);
-            if(idx > -1) c.splice(idx, 1);
-        }
-        localStorage.setItem("carrito", JSON.stringify(c));
-        act();
+      let c = JSON.parse(localStorage.getItem("carrito") || "[]");
+      if (delta > 0) {
+        const p = c.find(x => x.id === id);
+        if (p) c.push({ ...p });
+      } else {
+        const idx = c.findIndex(p => p.id === id);
+        if (idx > -1) c.splice(idx, 1);
+      }
+      localStorage.setItem("carrito", JSON.stringify(c));
+      act();
     };
 
     window.vaciarCarrito = () => {
-      if (confirm("¿Deseas vaciar todos los productos del carrito?")) {
+      if (confirm("¿Deseas quitar todos los productos del carrito?")) {
         localStorage.removeItem("carrito");
         act();
       }
     };
 
-    window.fin = () => {
-      const items = agrupar();
-      const subtotal = items.reduce((a,b)=>a+b.t,0);
-      const envio = +zona.value;
-      const ztxt = zona.selectedOptions[0].text.split(" - ")[0];
-      const contraentrega = document.querySelector('input[name="pago"][value="c"]').checked;
-      const esDepartamento = envio === 40;
-      const recargo = (esDepartamento && contraentrega) ? (subtotal + envio) * 0.05 : 0;
-      const total = subtotal + envio + recargo;
+    $('acepto-fragil').onchange = () => { $('error-fragil').hidden = true; $('caja-fragil').classList.remove('falta'); };
+    $('acepto-politicas').onchange = () => { $('error-politicas').hidden = true; $('caja-politicas').classList.remove('falta'); };
 
-      let m = `*¡Hola ${CONFIG.nombreNegocio}!*%0AMi pedido:%0A%0A`;
-      
-      items.forEach(i => {
-        m += `• ${i.titulo} [ID: ${i.id}] (x${i.c}) - ${CONFIG.simboloMoneda}${i.t.toFixed(2)}%0A`;
+    // Revisa los datos obligatorios; marca en rojo los que faltan y lleva al primero
+    const validar = () => {
+      let primero = null;
+      OBLIGATORIOS.forEach(k => {
+        const input = $(CAMPOS[k]);
+        const vacio = !input.value.trim();
+        input.closest('.campo').classList.toggle('error', vacio);
+        if (vacio && !primero) primero = input;
       });
-
-      m += `%0A*Subtotal:* ${CONFIG.simboloMoneda}${subtotal.toFixed(2)}`;
-      m += `%0A*Envío (${ztxt}):* ${CONFIG.simboloMoneda}${envio.toFixed(2)}`;
-      if (recargo) m += `%0A*Recargo contraentrega:* ${CONFIG.simboloMoneda}${recargo.toFixed(2)}`;
-      m += `%0A%0A*TOTAL A PAGAR: ${CONFIG.simboloMoneda}${total.toFixed(2)}*%0A`;
-      m += `%0A*Método:* ${contraentrega ? "Contraentrega" : "Transferencia Bancaria"}`;
-      if (notas.value.trim()) m += `%0A*Notas:* ${encodeURIComponent(notas.value.trim())}`;
-      
-      open(`https://wa.me/${CONFIG.telefonoWhatsApp}?text=` + m, "_blank");
+      if (primero) { primero.scrollIntoView({ behavior: "smooth", block: "center" }); setTimeout(() => primero.focus({ preventScroll: true }), 350); return false; }
+      return true;
     };
 
-    zona.onchange = calc;
-    document.querySelectorAll('input[name="pago"]').forEach(r => r.onclick = calc);
+    window.fin = () => {
+      if (!validar()) return;
+      const t = totales();
+      const fragiles = t.items.filter(esFragil);
+      // Casillas obligatorias: políticas (siempre) y frágiles (si hay)
+      const faltaPoliticas = !$('acepto-politicas').checked;
+      const faltaFragil = fragiles.length > 0 && !$('acepto-fragil').checked;
+      $('error-politicas').hidden = !faltaPoliticas; $('caja-politicas').classList.toggle('falta', faltaPoliticas);
+      $('error-fragil').hidden = !faltaFragil; $('caja-fragil').classList.toggle('falta', faltaFragil);
+      if (faltaFragil || faltaPoliticas) {
+        (faltaFragil ? $('caja-fragil') : $('caja-politicas')).scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+      guardarDatos();
+      const ztxt = zona.selectedOptions[0].text.split(" - ")[0];
+      const metodo = { t: "Transferencia bancaria", c: "Pago contra entrega", v: "Tarjeta Visa" }[document.querySelector('input[name="pago"]:checked').value];
+      const v = (id) => $(id).value.trim();
+
+      // Se arma el texto normal y se codifica completo al final
+      let m = `*¡Hola ${CONFIG.nombreNegocio}!*\nMi pedido:\n\n`;
+      t.items.forEach(i => {
+        m += `• ${i.titulo} [ID: ${i.id}] (x${i.c}) - ${Q(i.t)}${esFragil(i) ? " ⚠️ FRÁGIL" : ""}\n`;
+      });
+      m += `\n*Subtotal:* ${Q(t.subtotal)}`;
+      m += `\n*Envío (${ztxt}):* ${Q(t.envio)}`;
+      if (t.recargo) m += `\n*Recargo contra entrega (5%):* ${Q(t.recargo)}`;
+      m += `\n\n*TOTAL A PAGAR: ${Q(t.total)}*\n`;
+      m += `\n*Forma de pago:* ${metodo}`;
+      m += `\n\n*Datos de entrega*`;
+      m += `\n*Nombre:* ${v('c-nombre')}`;
+      if (v('c-telefono')) m += `\n*Teléfono:* ${v('c-telefono')}`;
+      m += `\n*Dirección:* ${v('c-direccion')}`;
+      m += `\n*Municipio:* ${v('c-municipio')}`;
+      if (notas.value.trim()) m += `\n*Referencias:* ${notas.value.trim()}`;
+      m += `\n\n✅ *Acepto las políticas de compra (versión del ${CONFIG.versionPoliticas}): confirmé medidas y modelo, no hay cambios por cambio de opinión y los problemas se reportan el mismo día de la entrega.*`;
+      if (fragiles.length) m += `\n✅ *Acepto que los productos frágiles viajan bajo mi riesgo y que Miika no responde por roturas o daños causados por la empresa de mensajería.*`;
+
+      open(`https://wa.me/${CONFIG.telefonoWhatsApp}?text=` + encodeURIComponent(m), "_blank");
+    };
+
+    zona.onchange = () => { calc(); guardarDatos(); };
+    document.querySelectorAll('input[name="pago"]').forEach(r => r.onchange = calc);
+    cargarDatos();
     act();
   </script>
 </body>

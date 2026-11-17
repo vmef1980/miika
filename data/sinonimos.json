@@ -1,0 +1,248 @@
+{
+  "_instrucciones": "Cada grupo es una lista de palabras que significan lo mismo. Si un producto contiene cualquiera de ellas (en nombre, subcategoría o descripción), el buscador lo encuentra con cualquier otra del grupo, y su página muestra las demás como 'También lo buscan como'. Escribe en minúsculas; los acentos no importan. Agrega grupos o palabras cuando quieras.",
+  "grupos": [
+    [
+      "olla",
+      "cacerola",
+      "cazuela",
+      "perol"
+    ],
+    [
+      "olla de presión",
+      "olla express",
+      "olla a presión"
+    ],
+    [
+      "sartén",
+      "paila"
+    ],
+    [
+      "inserto",
+      "bandeja gastronorm",
+      "gastronorm",
+      "recipiente para baño maría"
+    ],
+    [
+      "bandeja",
+      "charola",
+      "azafate"
+    ],
+    [
+      "bowl",
+      "tazón",
+      "pana",
+      "ensaladera"
+    ],
+    [
+      "pichel",
+      "jarra"
+    ],
+    [
+      "tenaza",
+      "pinza",
+      "pinzas"
+    ],
+    [
+      "miserable",
+      "espátula de silicón",
+      "raspador"
+    ],
+    [
+      "espátula",
+      "paleta",
+      "volteador"
+    ],
+    [
+      "duya",
+      "boquilla",
+      "pico para decorar"
+    ],
+    [
+      "manga pastelera",
+      "manga para decorar",
+      "bolsa para decorar"
+    ],
+    [
+      "colador",
+      "coladera",
+      "escurridor",
+      "cernidor",
+      "tamiz"
+    ],
+    [
+      "espumadera",
+      "araña",
+      "cuchara de espumar"
+    ],
+    [
+      "cucharón",
+      "cuchara de servir",
+      "cazo"
+    ],
+    [
+      "contenedor",
+      "recipiente",
+      "tuper",
+      "tupper",
+      "táper",
+      "envase"
+    ],
+    [
+      "desechable",
+      "descartable",
+      "de un solo uso"
+    ],
+    [
+      "dispensador",
+      "despachador"
+    ],
+    [
+      "refresquera",
+      "dispensador de bebidas",
+      "dispensador de jugo",
+      "despachador de agua"
+    ],
+    [
+      "shaker",
+      "coctelera"
+    ],
+    [
+      "jigger",
+      "medidor de tragos",
+      "onzero",
+      "medidor de licor"
+    ],
+    [
+      "tapadera",
+      "tapa"
+    ],
+    [
+      "chafer",
+      "chafing dish",
+      "baño maría",
+      "calentador de comida"
+    ],
+    [
+      "rallador",
+      "rayador"
+    ],
+    [
+      "tabla de picar",
+      "tabla de cortar",
+      "tabla para picar"
+    ],
+    [
+      "prensa francesa",
+      "cafetera francesa",
+      "french press"
+    ],
+    [
+      "batidor",
+      "batidor de globo",
+      "globo",
+      "batidor manual"
+    ],
+    [
+      "rodillo",
+      "bolillo",
+      "palote",
+      "uslero"
+    ],
+    [
+      "destapador",
+      "abrebotellas",
+      "abridor",
+      "sacacorchos",
+      "descorchador"
+    ],
+    [
+      "abrelatas",
+      "abridor de latas"
+    ],
+    [
+      "cubeta de hielo",
+      "hielera",
+      "balde de hielo",
+      "champanera"
+    ],
+    [
+      "taza",
+      "pocillo",
+      "mug",
+      "tarro"
+    ],
+    [
+      "bajo plato",
+      "plato base",
+      "cargador de mesa"
+    ],
+    [
+      "ramekin",
+      "ramequín",
+      "cazuelita",
+      "refractario individual"
+    ],
+    [
+      "porcionador",
+      "scoop",
+      "sacabolas",
+      "cuchara para helado"
+    ],
+    [
+      "papel aluminio",
+      "foil",
+      "papel de aluminio"
+    ],
+    [
+      "bagazo de caña",
+      "biodegradable",
+      "compostable",
+      "ecológico"
+    ],
+    [
+      "kraft",
+      "papel kraft",
+      "cartón"
+    ],
+    [
+      "empaque al vacío",
+      "bolsa al vacío",
+      "bolsas para empacar al vacío"
+    ],
+    [
+      "licuadora",
+      "blender"
+    ],
+    [
+      "molcajete",
+      "mortero"
+    ],
+    [
+      "canasta",
+      "cesta",
+      "canasto"
+    ],
+    [
+      "mantel",
+      "mantelería"
+    ],
+    [
+      "salero",
+      "pimentero",
+      "especiero"
+    ],
+    [
+      "servilletero",
+      "porta servilletas"
+    ],
+    [
+      "termo",
+      "térmico",
+      "vaso térmico"
+    ],
+    [
+      "cristalería",
+      "vasos y copas"
+    ]
+  ]
+}

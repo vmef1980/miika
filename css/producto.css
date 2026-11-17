@@ -1,0 +1,176 @@
+/* ══════════════════════════════════════════════════════════════════════
+   GuateCocina v10 — páginas de producto (p/<producto>.html)
+   Las genera process/GenerarPaginas.py. Misma paleta que css/style.css.
+   ══════════════════════════════════════════════════════════════════════ */
+:root {
+  --primary: #0d4954;
+  --primary-light: #072f36;
+  --accent: #e07a3f;
+  --highlight: #e9c46a;
+  --success: #1f9d55;
+  --danger: #dc3545;
+  --wa: #1fae5b;
+  --text: #1C3F60;
+  --text-soft: #5b6b7d;
+  --border: rgba(0, 0, 0, 0.08);
+  --card: #ffffff;
+  --bg: linear-gradient(135deg, #fff8f0 0%, #e6f7ff 100%);
+  --radius: 16px;
+  --radius-sm: 12px;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; background: var(--bg); background-attachment: fixed;
+  color: var(--text); line-height: 1.6; min-height: 100vh; }
+a { color: var(--accent); }
+img { max-width: 100%; }
+.contenedor { width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+
+/* Barra de confianza */
+.pp-confianza { background: var(--primary); color: #fff; font-size: .78rem; font-weight: 600; }
+.pp-confianza .contenedor { display: flex; gap: 22px; justify-content: center; flex-wrap: wrap; padding-top: 6px; padding-bottom: 6px; }
+.pp-confianza i { color: var(--highlight); margin-right: 5px; }
+@media (max-width: 640px) { .pp-confianza span:nth-child(n+2) { display: none; } }
+
+/* Encabezado */
+.pp-header { background: #fff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; box-shadow: 0 2px 14px rgba(0,0,0,.04); }
+.pp-header .contenedor { display: flex; align-items: center; gap: 14px; padding-top: 10px; padding-bottom: 10px; }
+.pp-marca { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--primary); font-weight: 800; font-size: 1.15rem; flex-shrink: 0; }
+.pp-marca img { width: 42px; height: 42px; border-radius: 10px; }
+.pp-buscar { flex: 1; display: flex; max-width: 520px; margin-left: auto; }
+.pp-buscar input { flex: 1; min-width: 0; border: 1.5px solid var(--border); border-right: none; border-radius: 999px 0 0 999px; padding: 9px 16px;
+  font: inherit; font-size: .92rem; background: #f6f9fc; color: var(--text); }
+.pp-buscar input:focus { outline: 2px solid var(--accent); outline-offset: -1px; background: #fff; }
+.pp-buscar button { border: none; background: var(--primary); color: #fff; padding: 0 16px; border-radius: 0 999px 999px 0; cursor: pointer; font-size: 1rem; }
+.pp-carrito { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%;
+  background: var(--highlight); color: var(--primary); font-size: 1.25rem; text-decoration: none; flex-shrink: 0; }
+.pp-carrito span { position: absolute; top: -4px; right: -4px; background: var(--danger); color: #fff; font-size: .7rem; font-weight: 800;
+  min-width: 20px; height: 20px; border-radius: 999px; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
+.pp-carrito span[hidden] { display: none; }
+@media (max-width: 640px) {
+  .pp-header .contenedor { flex-wrap: wrap; }
+  .pp-marca span { display: none; }
+  .pp-buscar { order: 3; flex-basis: 100%; max-width: none; }
+  .pp-carrito { margin-left: auto; }
+}
+
+/* Migas de pan */
+.pp-migas { font-size: .85rem; color: var(--text-soft); margin: 18px 0 14px; }
+.pp-migas ol { list-style: none; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.pp-migas li + li::before { content: "›"; margin: 0 6px; color: #9aa8b6; }
+.pp-migas a { color: var(--accent); text-decoration: none; font-weight: 600; }
+.pp-migas a:hover { text-decoration: underline; }
+
+/* Ficha principal */
+.pp-ficha { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 28px; background: var(--card); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 24px; }
+@media (max-width: 860px) { .pp-ficha { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 18px; } }
+.pp-galeria, .pp-info { min-width: 0; }
+
+.pp-galeria .pp-foto { aspect-ratio: 1 / 1; background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); display: flex;
+  align-items: center; justify-content: center; overflow: hidden; }
+.pp-galeria .pp-foto img { width: 100%; height: 100%; object-fit: contain; }
+.pp-miniaturas { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; padding-bottom: 4px; }
+.pp-miniaturas button { flex: 0 0 64px; height: 64px; border: 2px solid var(--border); border-radius: 10px; background: #fff; padding: 3px; cursor: pointer; }
+.pp-miniaturas button[aria-current="true"] { border-color: var(--accent); }
+.pp-miniaturas img { width: 100%; height: 100%; object-fit: contain; }
+
+.pp-info h1 { font-size: clamp(1.35rem, 2.6vw, 1.85rem); line-height: 1.25; color: var(--primary); font-weight: 800; letter-spacing: -.01em; }
+.pp-codigo { font-size: .8rem; color: var(--text-soft); margin-top: 6px; }
+.pp-precio { font-size: 2rem; font-weight: 800; color: var(--primary); margin: 14px 0 8px; letter-spacing: -.02em; }
+.pp-estados { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.pp-badge { display: inline-flex; align-items: center; gap: 5px; font-size: .7rem; font-weight: 800; padding: 4px 11px; border-radius: 999px; text-transform: uppercase; letter-spacing: .05em; }
+.pp-badge.disponible { background: #e3f6ea; color: #17733f; }
+.pp-badge.agotado { background: #fde8ea; color: #a8202f; }
+.pp-badge.fragil { background: #fff4d6; color: #8a5a00; }
+.pp-nota-fragil { font-size: .82rem; color: #7a5200; background: #fffaf0; border: 1px solid #f5dfa6; border-radius: 10px; padding: 8px 12px; margin-bottom: 14px; }
+
+.pp-acciones { display: grid; gap: 10px; margin: 6px 0 16px; }
+.pp-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font: inherit; font-weight: 700; font-size: 1rem; border-radius: 12px;
+  padding: 13px 18px; border: none; cursor: pointer; text-decoration: none; transition: transform .15s ease, box-shadow .15s ease; }
+.pp-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,.12); }
+.pp-btn.agregar { background: var(--primary); color: #fff; }
+.pp-btn.agregar.listo { background: var(--success); }
+.pp-btn.agregar:disabled { background: #b8c2cc; cursor: not-allowed; transform: none; box-shadow: none; }
+.pp-btn.whatsapp { background: var(--wa); color: #fff; }
+.pp-btn.secundario { background: #eef4fa; color: var(--primary); }
+.pp-ver-pedido { display: none; }
+.pp-ver-pedido.visible { display: inline-flex; }
+
+.pp-garantias { list-style: none; display: grid; gap: 7px; font-size: .88rem; color: var(--text-soft); border-top: 1px solid var(--border); padding-top: 14px; }
+.pp-garantias i { color: var(--accent); margin-right: 7px; }
+.pp-alternos { margin-top: 16px; font-size: .85rem; color: var(--text-soft); }
+.pp-alternos strong { color: var(--text); font-weight: 700; }
+.pp-alternos span { display: inline-block; background: #f1f5f9; border-radius: 999px; padding: 2px 10px; margin: 4px 4px 0 0; color: var(--text); }
+
+/* Descripción */
+.pp-seccion { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px 24px; margin-top: 22px; }
+.pp-seccion h2 { font-size: 1.15rem; color: var(--primary); margin-bottom: 12px; }
+.pp-seccion p { white-space: pre-line; }
+.pp-tabla { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.pp-tabla th, .pp-tabla td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.pp-tabla thead th { background: #f3f7fb; color: var(--primary); font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; }
+.pp-tabla tbody th { font-weight: 600; color: var(--text); width: 40%; }
+.pp-ficha-tecnica { margin-top: 16px; }
+@media (max-width: 640px) { .pp-seccion { padding: 16px; } .pp-tabla th, .pp-tabla td { padding: 8px; } }
+
+/* Relacionados */
+.pp-relacionados { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; }
+.pp-rel { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); text-decoration: none; color: var(--text); overflow: hidden;
+  display: flex; flex-direction: column; transition: transform .15s ease, box-shadow .15s ease; }
+.pp-rel:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(0,0,0,.08); }
+.pp-rel img { aspect-ratio: 1 / 1; object-fit: contain; background: #fff; padding: 8px; width: 100%; }
+.pp-rel strong { font-size: .84rem; font-weight: 600; padding: 0 10px; line-height: 1.35; flex: 1; }
+.pp-rel span { font-weight: 800; color: var(--primary); padding: 6px 10px 10px; }
+.pp-rel em { font-style: normal; font-size: .72rem; color: #a8202f; font-weight: 700; padding: 0 10px; }
+@media (max-width: 640px) { .pp-relacionados { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } .pp-rel strong { font-size: .8rem; } }
+.pp-ver-mas { display: inline-block; margin-top: 14px; font-weight: 700; text-decoration: none; }
+
+/* Producto retirado */
+.pp-retirado { text-align: center; padding: 48px 24px; }
+.pp-retirado h1 { color: var(--primary); margin-bottom: 10px; }
+
+/* Pie */
+.pp-pie { margin-top: 36px; background: var(--primary); color: #dce8f5; font-size: .88rem; }
+.pp-pie .contenedor { display: flex; flex-wrap: wrap; gap: 10px 22px; justify-content: space-between; padding-top: 20px; padding-bottom: 20px; }
+.pp-pie a { color: #fff; text-decoration: none; font-weight: 600; }
+.pp-pie nav { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+
+/* Botón flotante de WhatsApp */
+.pp-wa-flotante { position: fixed; right: 16px; bottom: 16px; width: 56px; height: 56px; border-radius: 50%; background: var(--wa); color: #fff;
+  display: flex; align-items: center; justify-content: center; font-size: 1.7rem; box-shadow: 0 8px 22px rgba(0,0,0,.2); z-index: 60; text-decoration: none; }
+@media (prefers-reduced-motion: reduce) { .pp-btn, .pp-rel { transition: none; } }
+
+/* v10: foco de teclado y respuesta al presionar (igual que el catálogo) */
+:where(a, button, input):focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+.pp-btn:active:not(:disabled) { transform: scale(0.97); }
+.pp-precio { font-variant-numeric: tabular-nums; }
+
+/* ESTILO MAYÚSCULAS (igual que el catálogo). Para volver a tipo oración, borra este bloque. */
+.pp-info h1, .pp-migas a, .pp-migas li:last-child, .pp-rel strong, .pp-seccion h2 { text-transform: uppercase; }
+.pp-info h1 { letter-spacing: 0; }
+
+/* ═══ v10: páginas de categoría (c/<categoría>/<subcategoría>/) ═══ */
+.pc-cabeza { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px 24px;
+  background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px 24px; }
+.pc-cabeza > div { flex: 1 1 420px; min-width: 0; }
+.pc-cabeza h1 { font-size: clamp(1.5rem, 3vw, 2.1rem); line-height: 1.2; color: var(--primary); font-weight: 800; text-transform: uppercase; }
+.pc-cabeza p { color: var(--text-soft); margin-top: 6px; font-size: .95rem; }
+.pc-catalogo { flex: 0 0 auto; }
+.pc-subs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.pc-subs a { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: #fff; border: 1px solid var(--border);
+  color: var(--text); text-decoration: none; font-weight: 700; font-size: .85rem; text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04); transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+.pc-subs a:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 6px 14px rgba(0,55,114,.12); }
+.pc-subs b { background: #e8f1fa; color: var(--accent); border-radius: 999px; padding: 1px 8px; font-size: .75rem; }
+.pc-productos { margin-top: 16px; }
+@media (max-width: 640px) { .pc-cabeza { padding: 16px; } .pc-catalogo { width: 100%; } }
+@media (prefers-reduced-motion: reduce) { .pc-subs a { transition: none; } }
+
+/* ═══ v10.1: misma protección que el catálogo ═══════════════════════════════════════════
+   El texto no se puede seleccionar (salvo nombre, código y precio, para pegarlos en WhatsApp)
+   y las fotos no se pueden arrastrar ni guardar con clic derecho. Los botones siguen funcionando. */
+body { -webkit-user-select: none; -moz-user-select: none; user-select: none; }
+.pp-info h1, .pp-codigo, .pp-precio, .pc-cabeza h1, input, textarea { -webkit-user-select: text; -moz-user-select: text; user-select: text; }
+img { -webkit-user-drag: none; user-drag: none; pointer-events: none; }
