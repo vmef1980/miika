@@ -1,7 +1,14 @@
 /* ══════════════════════════════════════════════════════════════════════════
-   festivo.js — adornos animados según las fechas festivas de Guatemala
+   festivo.js — adornos según las fechas festivas de Guatemala
    ══════════════════════════════════════════════════════════════════════════
-   LO ÚNICO QUE NECESITAS CAMBIAR ES  modo  (aquí abajo):
+   Qué pone en cada fecha (nada de esto tapa productos ni estorba los clics):
+     1. Un accesorio sobre el logo y sobre la mascota de WhatsApp (gorrito, cuernitos…)
+     2. Una guirnalda delgada debajo del encabezado
+     3. Una animación de bienvenida de pocos segundos, solo en el inicio y una vez por visita
+     4. Un saludo corto que se va junto con la animación
+
+   LO ÚNICO QUE NECESITAS CAMBIAR ES  modo  (aquí abajo), o usar el panel:
+   PanelFestivo\AbrirPanel.bat
 
      modo: "auto"      se activa solo según el calendario de más abajo
      modo: "apagado"   sin adornos: el sitio queda exactamente como el original
@@ -15,7 +22,6 @@
      (la prueba solo la ves tú, y se mantiene mientras no cierres la pestaña)
 
    Después de cambiar  modo  hay que publicar el sitio (process\PublicarSitio.bat).
-   También puedes cambiarlo sin abrir este archivo: PanelFestivo\AbrirPanel.bat
    ══════════════════════════════════════════════════════════════════════════ */
 (function () {
   "use strict";
@@ -23,7 +29,17 @@
   var FESTIVO = {
     modo: "navidad",
 
-    // Cantidad de adornos: 1 = normal · 0.5 = la mitad · 2 = el doble
+    // Qué partes se muestran. Pon false en la que no quieras.
+    mostrar: { accesorio: true, franja: true, animacion: true, saludo: true },
+
+    // Animación de bienvenida
+    bienvenida: {
+      segundos: 8,            // cuánto dura antes de desvanecerse
+      soloEnInicio: true,     // false = también en catálogo, carrito y páginas de producto
+      unaVezPorVisita: true   // false = se repite cada vez que se abre el inicio
+    },
+
+    // Cantidad de adornos de la animación: 1 = normal · 0.5 = la mitad · 2 = el doble
     intensidad: 1,
 
     // Calendario del modo "auto". Fechas en formato "mes-día" (hora de Guatemala).
@@ -31,37 +47,72 @@
     // Fechas que se calculan solas cada año: "pascua", "ramos" (Semana Santa) y
     // "gracias" (Thanksgiving, 4.º jueves de noviembre). Aceptan días de más o de menos: "gracias-6".
     calendario: [
-      { tema: "anio-nuevo",    desde: "12-31", hasta: "01-01" },  // fuegos artificiales
-      { tema: "diablo",        desde: "12-05", hasta: "12-07" },  // Quema del Diablo: fuego y chispas
-      { tema: "navidad",       desde: "12-08", hasta: "12-30" },  // nieve
-      { tema: "carino",        desde: "02-07", hasta: "02-14" },  // Día del Cariño: corazones
-      { tema: "san-patricio",  desde: "03-15", hasta: "03-17" },  // San Patricio: tréboles
-      { tema: "semana-santa",  desde: "ramos", hasta: "pascua" }, // pétalos con colores de alfombra
-      { tema: "madre",         desde: "05-03", hasta: "05-10" },  // Día de la Madre: pétalos
-      { tema: "padre",         desde: "06-14", hasta: "06-17" },  // Día del Padre: confeti sobrio
-      { tema: "independencia", desde: "09-01", hasta: "09-15" },  // confeti azul y blanco
-      { tema: "nino",          desde: "09-28", hasta: "10-01" },  // Día del Niño: globos
-      { tema: "santos",        desde: "10-28", hasta: "11-02" },  // Todos los Santos: barriletes
-      { tema: "black-october", desde: "10-01", hasta: "10-31" },  // Black October: etiquetas negro y dorado
-      { tema: "thanksgiving",  desde: "gracias-6", hasta: "gracias" } // Thanksgiving: hojas de otoño
-    ]
+      { tema: "anio-nuevo",    desde: "12-31", hasta: "01-01" },
+      { tema: "diablo",        desde: "12-05", hasta: "12-07" },
+      { tema: "navidad",       desde: "12-08", hasta: "12-30" },
+      { tema: "carino",        desde: "02-07", hasta: "02-14" },
+      { tema: "san-patricio",  desde: "03-15", hasta: "03-17" },
+      { tema: "semana-santa",  desde: "ramos", hasta: "pascua" },
+      { tema: "madre",         desde: "05-03", hasta: "05-10" },
+      { tema: "padre",         desde: "06-14", hasta: "06-17" },
+      { tema: "independencia", desde: "09-01", hasta: "09-15" },
+      { tema: "nino",          desde: "09-28", hasta: "10-01" },
+      { tema: "santos",        desde: "10-28", hasta: "11-02" },
+      { tema: "black-october", desde: "10-01", hasta: "10-31" },
+      { tema: "thanksgiving",  desde: "gracias-6", hasta: "gracias" }
+    ],
+
+    // Dónde están el logo, la mascota y el encabezado en cada tipo de página
+    logos: ["#header-logo", ".pp-marca img", "#logo-header"],
+    mascotas: ['a[id$="-animada"] img', '#wa-animado img'],
+    encabezados: ["#page-header", ".pp-header", "header.encabezado"]
   };
 
-  /* ── Temas: qué se dibuja en cada uno (colores y cantidades se pueden ajustar) ── */
+  /* ── Temas. Por cada uno:
+        saludo     texto corto de bienvenida ("" = sin saludo)
+        color      color del saludo
+        accesorio  lo que se le pone al logo y a la mascota ("" = nada)
+        franja     guirnalda bajo el encabezado (null = nada)
+        mov…       la animación de bienvenida (mov: "" = sin animación)                         ── */
   var TEMAS = {
-    "navidad":       { mov: "caer",   forma: "copo",      n: 80, tam: [2.5, 6],  vel: [25, 70],  colores: ["#ffffff"] },
-    "diablo":        { mov: "subir",  forma: "brasa",     n: 110, tam: [8, 20], vel: [60, 170], colores: ["#ffb020", "#ff6a00", "#ff3d00", "#ffd36b"], resplandor: true },
-    "anio-nuevo":    { mov: "fuegos",                                                           colores: ["#e63946", "#f4a100", "#2a9d8f", "#3a86ff", "#c05cff", "#ff5fa2"] },
-    "carino":        { mov: "subir",  forma: "corazon",   n: 26, tam: [10, 22], vel: [25, 60],  colores: ["#e63946", "#ff6b81", "#ff9eb5"] },
-    "semana-santa":  { mov: "caer",   forma: "petalo",    n: 45, tam: [6, 11],  vel: [25, 55],  colores: ["#6a1b9a", "#8e44ad", "#f4c20d", "#d62828", "#2e8b57"] },
-    "madre":         { mov: "caer",   forma: "petalo",    n: 40, tam: [6, 12],  vel: [22, 50],  colores: ["#ff8fab", "#ffb3c6", "#fb6f92", "#ffc2d1"] },
-    "padre":         { mov: "caer",   forma: "confeti",   n: 28, tam: [5, 9],   vel: [30, 70],  colores: ["#1d4e89", "#3a7ca5", "#d4a017"] },
-    "independencia": { mov: "caer",   forma: "confeti",   n: 70, tam: [6, 11],  vel: [35, 90],  colores: ["#4997d0", "#ffffff", "#4997d0"] },
-    "nino":          { mov: "subir",  forma: "globo",     n: 16, tam: [15, 24], vel: [30, 65],  colores: ["#ef476f", "#ffd166", "#06d6a0", "#118ab2", "#9b5de5"] },
-    "santos":        { mov: "subir",  forma: "barrilete", n: 9,  tam: [24, 40], vel: [12, 28],  colores: ["#e63946", "#f4a100", "#2a9d8f", "#3a86ff", "#c05cff", "#ffd166"] },
-    "san-patricio":  { mov: "caer",   forma: "trebol",    n: 34, tam: [9, 17],  vel: [25, 60],  colores: ["#1b8a3a", "#2fa84f", "#0b6b2b", "#57c26f"] },
-    "black-october": { mov: "caer",   forma: "etiqueta",  n: 24, tam: [13, 21], vel: [30, 70],  colores: ["#111111", "#111111", "#f4c20d"] },
-    "thanksgiving":  { mov: "caer",   forma: "hoja",      n: 38, tam: [10, 18], vel: [28, 65],  colores: ["#d35400", "#e67e22", "#c0392b", "#f1c40f", "#8e5a2b"] }
+    "navidad":       { mov: "caer",   forma: "estrella",  n: 46, tam: [5, 10],  vel: [22, 55],  colores: ["#f4c20d", "#ffffff", "#e63946", "#2a9d8f"],
+                       saludo: "¡Feliz Navidad!", color: "#b3161d", accesorio: "gorro",
+                       franja: { tipo: "colgantes", icono: "foco", colores: ["#e63946", "#f4c20d", "#2a9d8f", "#3a86ff"], brillo: true } },
+    "diablo":        { mov: "subir",  forma: "brasa",     n: 110, tam: [8, 20], vel: [60, 170], colores: ["#ffb020", "#ff6a00", "#ff3d00", "#ffd36b"], resplandor: true,
+                       saludo: "¡Llegó la Quema del Diablo!", color: "#c2410c", accesorio: "cuernos",
+                       franja: { tipo: "banderines", colores: ["#d62828", "#f77f00", "#fcbf49"] } },
+    "anio-nuevo":    { mov: "fuegos",                                                           colores: ["#e63946", "#f4a100", "#2a9d8f", "#3a86ff", "#c05cff", "#ff5fa2"],
+                       saludo: "¡Feliz Año Nuevo!", color: "#7a5b00", accesorio: "fiesta",
+                       franja: { tipo: "banderines", colores: ["#d4a017", "#1d2733", "#b8bfc7"] } },
+    "carino":        { mov: "subir",  forma: "corazon",   n: 26, tam: [10, 22], vel: [25, 60],  colores: ["#e63946", "#ff6b81", "#ff9eb5"],
+                       saludo: "¡Feliz Día del Cariño!", color: "#c1121f", accesorio: "corazon",
+                       franja: { tipo: "colgantes", icono: "corazon", colores: ["#e63946", "#ff6b81", "#ff9eb5"] } },
+    "san-patricio":  { mov: "caer",   forma: "trebol",    n: 34, tam: [9, 17],  vel: [25, 60],  colores: ["#1b8a3a", "#2fa84f", "#0b6b2b", "#57c26f"],
+                       saludo: "¡Feliz Día de San Patricio!", color: "#0b6b2b", accesorio: "sombrero-verde",
+                       franja: { tipo: "colgantes", icono: "trebol", colores: ["#1b8a3a", "#2fa84f", "#57c26f"] } },
+    "semana-santa":  { mov: "caer",   forma: "petalo",    n: 45, tam: [6, 11],  vel: [25, 55],  colores: ["#6a1b9a", "#8e44ad", "#f4c20d", "#d62828", "#2e8b57"],
+                       saludo: "Feliz Semana Santa", color: "#6a1b9a", accesorio: "",
+                       franja: { tipo: "alfombra" } },
+    "madre":         { mov: "caer",   forma: "petalo",    n: 40, tam: [6, 12],  vel: [22, 50],  colores: ["#ff8fab", "#ffb3c6", "#fb6f92", "#ffc2d1"],
+                       saludo: "¡Feliz Día de la Madre!", color: "#c9184a", accesorio: "flor",
+                       franja: { tipo: "colgantes", icono: "flor", colores: ["#fb6f92", "#ff8fab", "#ffb3c6"] } },
+    "padre":         { mov: "",
+                       saludo: "¡Feliz Día del Padre!", color: "#1d3557", accesorio: "sombrero", franja: null },
+    "independencia": { mov: "caer",   forma: "confeti",   n: 70, tam: [6, 11],  vel: [35, 90],  colores: ["#4997d0", "#ffffff", "#4997d0"],
+                       saludo: "¡Feliz Independencia, Guatemala!", color: "#1f6fb2", accesorio: "bandera",
+                       franja: { tipo: "banderines", colores: ["#4997d0", "#ffffff"] } },
+    "nino":          { mov: "subir",  forma: "globo",     n: 16, tam: [15, 24], vel: [30, 65],  colores: ["#ef476f", "#ffd166", "#06d6a0", "#118ab2", "#9b5de5"],
+                       saludo: "¡Feliz Día del Niño!", color: "#118ab2", accesorio: "helice",
+                       franja: { tipo: "banderines", colores: ["#ef476f", "#ffd166", "#06d6a0", "#118ab2", "#9b5de5"] } },
+    "santos":        { mov: "subir",  forma: "barrilete", n: 9,  tam: [24, 40], vel: [12, 28],  colores: ["#e63946", "#f4a100", "#2a9d8f", "#3a86ff", "#c05cff", "#ffd166"],
+                       saludo: "Feliz Día de Todos los Santos", color: "#b5179e", accesorio: "barrilete",
+                       franja: { tipo: "papel", colores: ["#e63946", "#f4a100", "#2a9d8f", "#3a86ff", "#c05cff"] } },
+    "black-october": { mov: "caer",   forma: "etiqueta",  n: 24, tam: [13, 21], vel: [30, 70],  colores: ["#111111", "#111111", "#f4c20d"],
+                       saludo: "Black October", color: "#111111", accesorio: "etiqueta",
+                       franja: { tipo: "banderines", colores: ["#111111", "#f4c20d"] } },
+    "thanksgiving":  { mov: "caer",   forma: "hoja",      n: 38, tam: [10, 18], vel: [28, 65],  colores: ["#d35400", "#e67e22", "#c0392b", "#f1c40f", "#8e5a2b"],
+                       saludo: "¡Feliz Día de Acción de Gracias!", color: "#a04000", accesorio: "peregrino",
+                       franja: { tipo: "colgantes", icono: "hoja", colores: ["#d35400", "#c0392b", "#f1c40f", "#8e5a2b"] } }
   };
   // Otros nombres que también se aceptan en  modo  y en  ?festivo=
   var ALIAS = { "nieve": "navidad", "fuego": "diablo", "quema": "diablo", "fuegos": "anio-nuevo", "ano-nuevo": "anio-nuevo",
@@ -73,8 +124,34 @@
 
   /* ══════════ De aquí para abajo no hace falta tocar nada ══════════ */
 
+  var T = "#1d2733";   // color del contorno de los accesorios
+  function svg(dentro) {
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%" style="display:block;overflow:visible">' +
+           '<g stroke="' + T + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">' + dentro + '</g></svg>';
+  }
+  /* Accesorios. tipo "sombrero" y "cuernos" se apoyan en la cabeza (su base es el punto 32,56 del dibujo);
+     "insignia" va prendida en la esquina de arriba a la derecha. */
+  var ACCESORIOS = {
+    "gorro":          { tipo: "sombrero", d: svg('<path d="M14 48C14 26 30 10 44 12c10 2 14 12 12 22-4-6-10-8-12-4 2 8 4 14 6 18z" fill="#d62828"/><rect x="8" y="46" width="48" height="12" rx="6" fill="#fff"/><circle cx="56" cy="36" r="6" fill="#fff"/>') },
+    "cuernos":        { tipo: "cuernos",  d: svg('<path d="M14 56C8 40 12 24 22 14c0 14 4 26 8 38z" fill="#d62828"/><path d="M50 56c6-16 2-32-8-42 0 14-4 26-8 38z" fill="#d62828"/>') },
+    "fiesta":         { tipo: "sombrero", d: svg('<path d="M32 8l18 48H14z" fill="#ffca3a"/><path d="M25.5 26l13 0 4.5 12-22 0z" fill="#ff5fa2" stroke="none"/><path d="M18 50l28 0 2 6H16z" fill="#3a86ff" stroke="none"/><path d="M32 8l18 48H14z" fill="none"/><circle cx="32" cy="8" r="5" fill="#ff595e"/>') },
+    "corazon":        { tipo: "insignia", d: svg('<path d="M32 54C10 38 8 20 20 14c7-3 12 2 12 8 0-6 5-11 12-8 12 6 10 24-12 40z" fill="#e63946"/>') },
+    "sombrero-verde": { tipo: "sombrero", d: svg('<rect x="18" y="16" width="28" height="36" rx="3" fill="#1b8a3a"/><rect x="18" y="38" width="28" height="9" fill="#1d2733" stroke="none"/><rect x="27" y="37" width="10" height="11" rx="1.5" fill="#f4c20d"/><rect x="6" y="50" width="52" height="8" rx="4" fill="#1b8a3a"/>') },
+    "flor":           { tipo: "insignia", d: svg('<g fill="#fb6f92"><circle cx="32" cy="15" r="11"/><circle cx="48" cy="27" r="11"/><circle cx="42" cy="45" r="11"/><circle cx="22" cy="45" r="11"/><circle cx="16" cy="27" r="11"/></g><circle cx="32" cy="32" r="9" fill="#ffd166"/>') },
+    "sombrero":       { tipo: "sombrero", d: svg('<path d="M16 50C16 30 22 20 32 25c10-5 16 5 16 25z" fill="#1d3557"/><path d="M16.5 40h31l.5 9h-32z" fill="#e9c46a" stroke="none"/><ellipse cx="32" cy="52" rx="27" ry="6" fill="#1d3557"/>') },
+    "bandera":        { tipo: "insignia", d: svg('<rect x="14" y="12" width="14" height="26" fill="#4997d0"/><rect x="28" y="12" width="14" height="26" fill="#fff"/><rect x="42" y="12" width="14" height="26" fill="#4997d0"/><path d="M12 8v52" stroke-width="4" stroke="#7a4a1e"/>') },
+    "helice":         { tipo: "sombrero", d: svg('<path d="M12 56c0-18 9-28 20-28s20 10 20 28z" fill="#e63946"/><path d="M25 29c-3 6-4 16-4 27h22c0-11-1-21-4-27-5-2-9-2-14 0z" fill="#ffd166" stroke="none"/><path d="M12 56c0-18 9-28 20-28s20 10 20 28z" fill="none"/><path d="M32 28V16"/><ellipse cx="20" cy="14" rx="12" ry="4" fill="#3a86ff"/><ellipse cx="44" cy="14" rx="12" ry="4" fill="#3a86ff"/><circle cx="32" cy="14" r="3" fill="#1d2733"/>') },
+    "barrilete":      { tipo: "insignia", d: svg('<path d="M32 46c6 6-6 8 0 16" fill="none" stroke="#e63946" stroke-width="3"/><g stroke-width="1.2"><path d="M32 26L54 26 47.6 10.4z" fill="#e63946"/><path d="M32 26L47.6 10.4 32 4z" fill="#f4a100"/><path d="M32 26L32 4 16.4 10.4z" fill="#2a9d8f"/><path d="M32 26L16.4 10.4 10 26z" fill="#3a86ff"/><path d="M32 26L10 26 16.4 41.6z" fill="#c05cff"/><path d="M32 26L16.4 41.6 32 48z" fill="#ffd166"/><path d="M32 26L32 48 47.6 41.6z" fill="#e63946"/><path d="M32 26L47.6 41.6 54 26z" fill="#2a9d8f"/></g><circle cx="32" cy="26" r="7" fill="#fff"/>') },
+    "etiqueta":       { tipo: "insignia", d: svg('<path d="M24 10h30a4 4 0 014 4v36a4 4 0 01-4 4H24L6 32z" fill="#111" stroke="#f4c20d"/><circle cx="18" cy="32" r="3.5" fill="#f4c20d" stroke="none"/><text x="40" y="42" text-anchor="middle" font-family="Arial,sans-serif" font-weight="800" font-size="28" fill="#f4c20d" stroke="none">%</text>') },
+    "peregrino":      { tipo: "sombrero", d: svg('<path d="M20 52l4-36h16l4 36z" fill="#2b2b2b"/><path d="M21 40h22l1 9H20z" fill="#8e5a2b" stroke="none"/><rect x="27" y="38.500" width="10" height="11" rx="1.5" fill="none" stroke="#f4c20d" stroke-width="2.5"/><rect x="5" y="50" width="54" height="8" rx="4" fill="#2b2b2b"/>') }
+  };
+
+  /* ── estado ── */
   var lienzo = null, ctx = null, cuadro = 0, activo = null, parts = [], chispas = [];
-  var W = 0, H = 0, ultimo = 0, proximoFuego = 0, brillo = null;
+  var W = 0, H = 0, ultimo = 0, proximoFuego = 0, brillo = null, inicioAnim = 0, duraAnim = 0;
+  var puestos = [];        // todo lo que se agregó a la página, para poder quitarlo
+  var recolocar = [];      // funciones que reubican los accesorios si cambia el tamaño
+  var quieto = false;      // el visitante pidió "reducir movimiento"
 
   function azar(a, b) { return a + Math.random() * (b - a); }
   function elegir(l) { return l[Math.floor(Math.random() * l.length)]; }
@@ -136,13 +213,194 @@
     return { tema: TEMAS[tema] ? tema : "apagado", forzado: !!prueba };
   }
 
-  /* ── dibujo de cada forma ── */
+  /* ══════════ 1. Accesorio sobre el logo y la mascota ══════════ */
+
+  function agregar(el, padre) { padre.appendChild(el); puestos.push(el); return el; }
+
+  function medirDibujo(img) {        // dónde está la "cabeza" de la mascota dentro de su imagen
+    var todo = { x0: 0, y0: 0, x1: 1, y1: 1, cx: 0.5 };
+    try {
+      var w = img.naturalWidth, h = img.naturalHeight;
+      if (!w || !h) return todo;
+      var e = Math.min(1, 90 / Math.max(w, h)), cw = Math.max(2, Math.round(w * e)), ch = Math.max(2, Math.round(h * e));
+      var c = document.createElement("canvas"); c.width = cw; c.height = ch;
+      var x = c.getContext("2d"); x.drawImage(img, 0, 0, cw, ch);
+      var d = x.getImageData(0, 0, cw, ch).data, i, px, py, minX = cw, maxX = -1, minY = ch, maxY = -1;
+      var lleno = function (px, py) { i = (py * cw + px) * 4; return d[i + 3] > 40 && !(d[i] > 240 && d[i + 1] > 240 && d[i + 2] > 240); };
+      for (py = 0; py < ch; py++) for (px = 0; px < cw; px++) if (lleno(px, py)) {
+        if (px < minX) minX = px; if (px > maxX) maxX = px; if (py < minY) minY = py; if (py > maxY) maxY = py;
+      }
+      if (maxX < 0) return todo;
+      var suma = 0, n = 0, banda = Math.max(1, Math.round((maxY - minY) * 0.06));
+      for (py = minY; py <= minY + banda; py++) for (px = 0; px < cw; px++) if (lleno(px, py)) { suma += px; n++; }
+      return { x0: minX / cw, y0: minY / ch, x1: (maxX + 1) / cw, y1: (maxY + 1) / ch, cx: n ? (suma / n + 0.5) / cw : 0.5 };
+    } catch (x) { return todo; }      // imagen de otro dominio o navegador viejo: se usa la imagen completa
+  }
+
+  function vestir(img, esMascota, acc) {
+    var padre = img.parentElement;
+    if (!padre) return;
+    if (getComputedStyle(padre).position === "static") {
+      var antes = padre.style.position; padre.style.position = "relative";
+      puestos.push({ deshacer: function () { padre.style.position = antes; } });
+    }
+    var s = document.createElement("span");
+    s.className = "festivo-acc"; s.setAttribute("aria-hidden", "true"); s.innerHTML = acc.d;
+    s.style.cssText = "position:absolute;pointer-events:none;z-index:3;line-height:0;display:none;";
+    agregar(s, padre);
+    var medida = null;
+    function colocar() {
+      var w = img.offsetWidth, h = img.offsetHeight, L = img.offsetLeft, Tp = img.offsetTop;
+      if (!w || !h) { s.style.display = "none"; return; }
+      var tam, px, py, giro, base = acc.tipo !== "insignia";
+      if (esMascota) {
+        if (!medida && img.complete && img.naturalWidth) medida = medirDibujo(img);
+        var m = medida || { x0: 0, y0: 0, x1: 1, y1: 1, cx: 0.5 }, ancho = (m.x1 - m.x0) * w;
+        if (acc.tipo === "sombrero") { tam = Math.max(18, ancho * 0.56); px = L + m.cx * w; py = Tp + m.y0 * h + tam * 0.16; giro = -10; }
+        else if (acc.tipo === "cuernos") { tam = Math.max(20, ancho * 0.7); px = L + m.cx * w; py = Tp + m.y0 * h + tam * 0.3; giro = 0; }
+        else { tam = Math.max(15, ancho * 0.42); px = L + m.x1 * w - tam * 0.15; py = Tp + m.y0 * h + tam * 0.3; giro = 12; }
+      } else {
+        if (acc.tipo === "sombrero") { tam = w * 0.6; px = L + w * 0.22; py = Tp + h * 0.3; giro = -22; }
+        else if (acc.tipo === "cuernos") { tam = w * 0.56; px = L + w * 0.5; py = Tp + h * 0.1; giro = 0; }
+        else { tam = w * 0.5; px = L + w * 0.93; py = Tp + h * 0.1; giro = 12; }
+      }
+      s.style.width = s.style.height = tam.toFixed(1) + "px";
+      s.style.left = (px - tam / 2).toFixed(1) + "px";
+      var arriba = py - tam * (base ? 0.875 : 0.5);
+      // El encabezado está pegado a la barra de confianza, que va encima: un accesorio del logo no puede subir más de 8 px.
+      if (!esMascota && arriba < Tp - 8) arriba = Tp - 8;
+      s.style.top = arriba.toFixed(1) + "px";
+      s.style.transformOrigin = base ? "50% 87.5%" : "50% 50%";
+      s.style.transform = "rotate(" + giro + "deg)";
+      s.style.display = "block";
+    }
+    recolocar.push(colocar);
+    if (!img.complete) img.addEventListener("load", colocar);
+    colocar();
+  }
+
+  function ponerAccesorios(t) {
+    var acc = ACCESORIOS[t.accesorio];
+    if (!acc || !FESTIVO.mostrar.accesorio) return;
+    var vistos = [];
+    function cada(lista, esMascota) {
+      (lista || []).forEach(function (sel) {
+        var els; try { els = document.querySelectorAll(sel); } catch (x) { return; }
+        Array.prototype.forEach.call(els, function (img) {
+          if (vistos.indexOf(img) < 0) { vistos.push(img); vestir(img, esMascota, acc); }
+        });
+      });
+    }
+    cada(FESTIVO.mascotas, true);
+    cada(FESTIVO.logos, false);
+  }
+
+  /* ══════════ 2. Guirnalda bajo el encabezado ══════════ */
+
+  var ICONOS = {   // dibujos de 14×14 que cuelgan de la guirnalda; {c} = color
+    foco:    '<rect x="5" y="0" width="4" height="3.500" fill="#4a4a4a"/><ellipse cx="7" cy="8.500" rx="4.200" ry="5.500" fill="{c}"/>',
+    corazon: '<path d="M7 13C1 8.500 0.500 4 3.500 2.300c1.700-.8 3.500.5 3.500 2.200 0-1.700 1.800-3 3.500-2.200C13.500 4 13 8.500 7 13z" fill="{c}"/>',
+    trebol:  '<path d="M7 7v6.500" stroke="{c}" stroke-width="1.500" fill="none"/><circle cx="7" cy="4" r="3.200" fill="{c}"/><circle cx="4" cy="8" r="3.200" fill="{c}"/><circle cx="10" cy="8" r="3.200" fill="{c}"/>',
+    flor:    '<g fill="{c}"><circle cx="7" cy="3.200" r="2.900"/><circle cx="10.800" cy="6" r="2.900"/><circle cx="9.300" cy="10.400" r="2.900"/><circle cx="4.700" cy="10.400" r="2.900"/><circle cx="3.200" cy="6" r="2.900"/></g><circle cx="7" cy="7.200" r="2.300" fill="#ffd166"/>',
+    hoja:    '<path d="M7 0.500C12 4 12 9 7 13.500 2 9 2 4 7 0.500z" fill="{c}"/><path d="M7 2v11" stroke="rgba(60,30,10,.45)" stroke-width="0.800" fill="none"/>'
+  };
+  function comoFondo(ancho, alto, dentro) {
+    return 'url("data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="' + ancho + '" height="' + alto +
+           '" viewBox="0 0 ' + ancho + ' ' + alto + '">' + dentro + '</svg>') + '")';
+  }
+  function hacerFranja(f) {          // devuelve { alto, capas: [fondo, fondo que parpadea] }
+    var c = f.colores || [], n = c.length, i, s = "", halo = "", paso;
+    if (f.tipo === "banderines") {
+      paso = 26;
+      for (i = 0; i < n; i++) s += '<path d="M' + (i * paso + 2) + ' 2h22l-11 17z" fill="' + c[i] + '" stroke="rgba(0,0,0,.22)" stroke-width="0.800"/>';
+      s += '<path d="M0 2h' + (n * paso) + '" stroke="#6b7280" stroke-width="1.200"/>';
+      return { alto: 21, capas: [comoFondo(n * paso, 21, s)] };
+    }
+    if (f.tipo === "colgantes") {
+      paso = 34;
+      for (i = 0; i < n; i++) {
+        s += '<path d="M' + (i * paso) + ' 2Q' + (i * paso + paso / 2) + ' 9 ' + ((i + 1) * paso) + ' 2" fill="none" stroke="#4b5563" stroke-width="1.200"/>';
+        s += '<g transform="translate(' + (i * paso + paso / 2 - 7) + ' 5.500)">' + ICONOS[f.icono].replace(/\{c\}/g, c[i]) + '</g>';
+        halo += '<circle cx="' + (i * paso + paso / 2) + '" cy="14" r="8.500" fill="' + c[i] + '" opacity=".38"/>';
+      }
+      return { alto: 24, capas: f.brillo ? [comoFondo(n * paso, 24, s), comoFondo(n * paso, 24, halo)] : [comoFondo(n * paso, 24, s)] };
+    }
+    if (f.tipo === "papel") {
+      paso = 36;
+      for (i = 0; i < n; i++) s += '<path fill-rule="evenodd" transform="translate(' + (i * paso + 3) + ' 2)" fill="' + c[i] +
+        '" d="M0 0h30v15q-5 6-10 0-5 6-10 0-5 6-10 0zM6 5a2.200 2.200 0 104.400 0 2.200 2.200 0 10-4.400 0zM12.800 9.500a2.200 2.200 0 104.400 0 2.200 2.200 0 10-4.400 0zM19.600 5a2.200 2.200 0 104.400 0 2.200 2.200 0 10-4.400 0z"/>';
+      s += '<path d="M0 2h' + (n * paso) + '" stroke="#6b7280" stroke-width="1.200"/>';
+      return { alto: 24, capas: [comoFondo(n * paso, 24, s)] };
+    }
+    if (f.tipo === "alfombra") {      // cenefa como las alfombras de aserrín
+      s = '<rect width="48" height="9" fill="#6a1b9a"/><path d="M12 0.800l5 3.700-5 3.700-5-3.700z" fill="#f4c20d"/><path d="M36 0.800l5 3.700-5 3.700-5-3.700z" fill="#f4c20d"/>' +
+          '<path d="M24 1.500l3 3-3 3-3-3z" fill="#2e8b57"/><path d="M0 1.500l3 3-3 3z M48 1.500l-3 3 3 3z" fill="#d62828"/><rect y="9" width="48" height="1.500" fill="#f4c20d"/>';
+      return { alto: 10.5, capas: [comoFondo(48, 10.5, s)] };
+    }
+    return null;
+  }
+
+  function primero(lista) {
+    for (var i = 0; i < (lista || []).length; i++) {
+      try { var el = document.querySelector(lista[i]); if (el) return el; } catch (x) {}
+    }
+    return null;
+  }
+
+  function ponerFranja(t) {
+    var cab = primero(FESTIVO.encabezados);
+    if (!cab) return null;
+    var pos = getComputedStyle(cab).position;
+    if (pos === "static") {
+      var antes = cab.style.position; cab.style.position = "relative";
+      puestos.push({ deshacer: function () { cab.style.position = antes; } });
+    }
+    if (!t.franja || !FESTIVO.mostrar.franja) return cab;
+    var f = hacerFranja(t.franja);
+    if (!f) return cab;
+    var caja = document.createElement("div");
+    caja.className = "festivo-franja-caja"; caja.setAttribute("aria-hidden", "true");
+    caja.style.cssText = "position:absolute;left:0;right:0;top:100%;height:" + f.alto + "px;pointer-events:none;transition:opacity .35s;";
+    f.capas.forEach(function (fondo, i) {
+      var d = document.createElement("div");
+      d.className = "festivo-franja";
+      d.style.cssText = "position:absolute;left:0;right:0;top:0;height:100%;pointer-events:none;background:" + fondo +
+                        " repeat-x center top;" + (i === 1 && !quieto ? "animation:festivo-parpadeo 2.6s ease-in-out infinite;" : "");
+      caja.appendChild(d);
+    });
+    agregar(caja, cab);
+    // Si el encabezado no es fijo (páginas de producto), el contenido baja lo que mide la guirnalda para no taparlo.
+    if (pos !== "fixed") {
+      var mb = cab.style.marginBottom;
+      cab.style.marginBottom = ((parseFloat(getComputedStyle(cab).marginBottom) || 0) + f.alto) + "px";
+      puestos.push({ deshacer: function () { cab.style.marginBottom = mb; } });
+    }
+    // Al bajar por la página la guirnalda se desvanece: no pasa por encima de productos ni precios.
+    function alDesplazar() {
+      var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+      caja.style.opacity = y > 60 ? "0" : "1";
+    }
+    window.addEventListener("scroll", alDesplazar, { passive: true });
+    puestos.push({ deshacer: function () { window.removeEventListener("scroll", alDesplazar); } });
+    alDesplazar();
+    return cab;
+  }
+
+  /* ══════════ 3 y 4. Animación de bienvenida y saludo ══════════ */
+
   function hacerBrillo() {           // mancha de luz para las brasas (se dibuja una sola vez)
     var c = document.createElement("canvas"); c.width = c.height = 64;
     var x = c.getContext("2d"), g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
     g.addColorStop(0, "rgba(255,255,255,1)"); g.addColorStop(0.25, "rgba(255,255,255,.75)");
     g.addColorStop(1, "rgba(255,255,255,0)");
     x.fillStyle = g; x.fillRect(0, 0, 64, 64);
+    return c;
+  }
+  function luzDeColor(color) {       // la mancha de luz teñida del color de la brasa
+    var c = document.createElement("canvas"); c.width = c.height = 64;
+    var x = c.getContext("2d");
+    x.drawImage(brillo, 0, 0);
+    x.globalCompositeOperation = "source-in"; x.fillStyle = color; x.fillRect(0, 0, 64, 64);
     return c;
   }
   var BORDE_BLANCO = "rgba(110,160,215,.75)";   // contorno para que lo blanco se vea sobre fondo claro
@@ -152,6 +410,15 @@
       ctx.beginPath(); ctx.arc(0, 0, p.t, 0, 6.283);
       ctx.fillStyle = "#fff"; ctx.fill();
       ctx.lineWidth = 1; ctx.strokeStyle = BORDE_BLANCO; ctx.stroke();
+    },
+    estrella: function (p) {           // destello de cuatro puntas que titila
+      var r = p.t * (0.75 + 0.25 * Math.sin(p.giro * 1.3)), c = r * 0.22;
+      ctx.rotate(p.rot * 0.2);
+      ctx.beginPath();
+      ctx.moveTo(0, -r); ctx.quadraticCurveTo(c, -c, r, 0); ctx.quadraticCurveTo(c, c, 0, r);
+      ctx.quadraticCurveTo(-c, c, -r, 0); ctx.quadraticCurveTo(-c, -c, 0, -r);
+      ctx.fillStyle = p.c; ctx.fill();
+      if (p.c === "#ffffff") { ctx.lineWidth = 1; ctx.strokeStyle = BORDE_BLANCO; ctx.stroke(); }
     },
     confeti: function (p) {
       ctx.rotate(p.rot);
@@ -232,26 +499,17 @@
       ctx.font = "800 " + Math.round(h * 0.78) + "px Arial, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
       ctx.fillText("%", w * 0.08, h * 0.04);
     },
-    brasa: function (p) {
+    brasa: function (p, gen) {
       var vida = Math.max(0, Math.min(1, p.y / H));           // se apaga al subir
-      ctx.globalAlpha = p.alfa * vida;
+      ctx.globalAlpha = p.alfa * vida * gen;
       var r = p.t * (0.5 + vida);
       ctx.fillStyle = p.c;
       ctx.beginPath(); ctx.arc(0, 0, r * 0.22, 0, 6.283); ctx.fill();
-      ctx.globalAlpha = p.alfa * vida * 0.9;
+      ctx.globalAlpha = p.alfa * vida * 0.9 * gen;
       ctx.drawImage(p.luz, -r, -r, r * 2, r * 2);
     }
   };
 
-  function luzDeColor(color) {       // la mancha de luz teñida del color de la brasa
-    var c = document.createElement("canvas"); c.width = c.height = 64;
-    var x = c.getContext("2d");
-    x.drawImage(brillo, 0, 0);
-    x.globalCompositeOperation = "source-in"; x.fillStyle = color; x.fillRect(0, 0, 64, 64);
-    return c;
-  }
-
-  /* ── partículas ── */
   function nueva(t, alInicio) {
     var sube = t.mov === "subir", tam = azar(t.tam[0], t.tam[1]);
     var p = {
@@ -267,14 +525,12 @@
     if (t.forma === "brasa") { p.luz = t.luces[p.c]; p.ancho = azar(6, 22); if (alInicio) p.y = azar(H * 0.45, H); }
     return p;
   }
-
   function cuantas(t) {
     var area = Math.max(0.45, Math.min(1.6, (W * H) / (1366 * 768)));
     var movil = W < 700 ? 0.6 : 1;
     return Math.max(4, Math.round(t.n * area * movil * (FESTIVO.intensidad || 1)));
   }
-
-  function pasoParticulas(t, dt) {
+  function pasoParticulas(t, dt, gen) {
     var total = cuantas(t), i, p;
     while (parts.length < total) parts.push(nueva(t, true));
     if (parts.length > total) parts.length = total;
@@ -285,24 +541,22 @@
       p.y += p.vy * dt; p.x += Math.cos(p.fase) * p.ancho * dt;
       var m = p.t * 4;
       if (p.y > H + m || p.y < -m || p.x < -m * 2 || p.x > W + m * 2) { parts[i] = p = nueva(t, false); }
-      ctx.save(); ctx.translate(p.x, p.y); ctx.globalAlpha = p.alfa;
-      pinta(p);
+      ctx.save(); ctx.translate(p.x, p.y); ctx.globalAlpha = p.alfa * gen;
+      pinta(p, gen);
       ctx.restore();
     }
   }
-
-  function pasoResplandor(ahora) {   // brillo de fogata en el borde de abajo
-    var alto = Math.min(190, H * 0.28), fuerza = 0.2 + 0.06 * Math.sin(ahora / 180) + 0.04 * Math.sin(ahora / 67);
+  function pasoResplandor(ahora, gen) {   // brillo de fogata en el borde de abajo
+    var alto = Math.min(190, H * 0.28), fuerza = (0.2 + 0.06 * Math.sin(ahora / 180) + 0.04 * Math.sin(ahora / 67)) * gen;
     var g = ctx.createLinearGradient(0, H, 0, H - alto);
     g.addColorStop(0, "rgba(255,90,0," + fuerza.toFixed(3) + ")");
     g.addColorStop(0.5, "rgba(255,150,0," + (fuerza * 0.4).toFixed(3) + ")");
     g.addColorStop(1, "rgba(255,170,0,0)");
     ctx.fillStyle = g; ctx.fillRect(0, H - alto, W, alto);
   }
-
-  function pasoFuegos(t, ahora, dt) {
+  function pasoFuegos(t, ahora, dt, gen) {
     var i, c;
-    if (ahora > proximoFuego) {
+    if (ahora > proximoFuego && gen >= 1) {
       var movil = W < 700, cx = azar(W * 0.1, W * 0.9), cy = azar(H * 0.12, H * 0.5), color = elegir(t.colores);
       var n = Math.round((movil ? 26 : 44) * Math.min(1.5, FESTIVO.intensidad || 1)), fuerza = azar(120, 230);
       for (i = 0; i < n; i++) {
@@ -318,14 +572,13 @@
       c.vx *= (1 - 1.6 * dt); c.vy = c.vy * (1 - 1.6 * dt) + 90 * dt;
       c.x += c.vx * dt; c.y += c.vy * dt; c.vida -= dt / c.dura;
       if (c.vida <= 0) { chispas.splice(i, 1); continue; }
-      ctx.globalAlpha = Math.min(1, c.vida * 1.4);
+      ctx.globalAlpha = Math.min(1, c.vida * 1.4) * gen;
       ctx.strokeStyle = c.c; ctx.lineWidth = 3;
       ctx.beginPath(); ctx.moveTo(x0 - c.vx * 0.05, y0 - c.vy * 0.05); ctx.lineTo(c.x, c.y); ctx.stroke();
     }
     ctx.globalAlpha = 1;
   }
 
-  /* ── ciclo de animación ── */
   function medir() {
     if (!lienzo) return;
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -333,39 +586,35 @@
     lienzo.width = Math.round(W * dpr); lienzo.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
+  var DESVANECER = 1500;   // milisegundos que tarda en irse la animación
   function ciclo(ahora) {
-    if (!activo) return;
+    if (!lienzo) return;
+    var paso = ahora - inicioAnim, gen = 1;
+    if (duraAnim > 0 && paso > duraAnim) gen = 1 - (paso - duraAnim) / DESVANECER;
+    if (gen <= 0) { terminarAnimacion(); return; }
     cuadro = requestAnimationFrame(ciclo);
     var dt = Math.min(0.05, (ahora - ultimo) / 1000 || 0.016); ultimo = ahora;
     var t = TEMAS[activo];
     ctx.clearRect(0, 0, W, H);
-    if (t.resplandor) pasoResplandor(ahora);
-    if (t.mov === "fuegos") pasoFuegos(t, ahora, dt); else pasoParticulas(t, dt);
+    if (t.resplandor) pasoResplandor(ahora, gen);
+    if (t.mov === "fuegos") pasoFuegos(t, ahora, dt, gen); else pasoParticulas(t, dt, gen);
   }
   function alCambiarVisibilidad() {  // pestaña oculta: no gasta batería
-    if (!activo) return;
+    if (!lienzo) return;
     cancelAnimationFrame(cuadro);
     if (!document.hidden) { ultimo = performance.now(); cuadro = requestAnimationFrame(ciclo); }
   }
-
-  function quitar() {
+  function terminarAnimacion() {
     cancelAnimationFrame(cuadro);
-    if (activo) document.documentElement.classList.remove("festivo", "festivo-" + activo);
-    activo = null; parts = []; chispas = [];
     if (lienzo && lienzo.parentNode) lienzo.parentNode.removeChild(lienzo);
-    lienzo = ctx = null;
-    window.removeEventListener("resize", medir);
+    lienzo = ctx = null; parts = []; chispas = [];
     document.removeEventListener("visibilitychange", alCambiarVisibilidad);
   }
 
-  function poner(tema) {
-    tema = normal(tema);
-    quitar();
-    var t = TEMAS[tema];
-    if (!t || !document.body) return false;
+  function ponerAnimacion(t) {
+    if (!t.mov || !FESTIVO.mostrar.animacion || quieto) return false;
     lienzo = document.createElement("canvas");
-    lienzo.id = "festivo-lienzo";
-    lienzo.setAttribute("aria-hidden", "true");
+    lienzo.id = "festivo-lienzo"; lienzo.setAttribute("aria-hidden", "true");
     // Encima del contenido, debajo del encabezado, menús y ventanas. No estorba los clics.
     lienzo.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:993;";
     ctx = lienzo.getContext("2d");
@@ -375,25 +624,94 @@
       t.colores.forEach(function (c) { t.luces[c] = luzDeColor(c); });
     }
     document.body.appendChild(lienzo);
-    activo = tema;
-    document.documentElement.classList.add("festivo", "festivo-" + tema);
-    medir(); ultimo = performance.now(); proximoFuego = 0;
-    window.addEventListener("resize", medir);
+    medir();
+    inicioAnim = ultimo = performance.now(); proximoFuego = 0;
+    duraAnim = Math.max(0, (FESTIVO.bienvenida.segundos || 0) * 1000);   // 0 = no se quita
     document.addEventListener("visibilitychange", alCambiarVisibilidad);
     if (!document.hidden) cuadro = requestAnimationFrame(ciclo);
+    return true;
+  }
+
+  function ponerSaludo(t, cab) {
+    if (!t.saludo || !FESTIVO.mostrar.saludo || !cab) return;
+    var s = document.createElement("div");
+    s.className = "festivo-saludo"; s.setAttribute("role", "status"); s.textContent = t.saludo;
+    s.style.cssText = "position:absolute;left:50%;top:calc(100% + 7px);transform:translateX(-50%);pointer-events:none;white-space:nowrap;" +
+      "font:700 13px/1 system-ui,'Segoe UI',Roboto,Arial,sans-serif;letter-spacing:.01em;padding:7px 14px;border-radius:999px;" +
+      "background:#fff;color:" + (t.color || T) + ";border:1.5px solid " + (t.color || T) + ";box-shadow:0 3px 10px rgba(0,0,0,.12);" +
+      "max-width:92vw;overflow:hidden;text-overflow:ellipsis;z-index:2;" + (quieto ? "" : "animation:festivo-saludo 9.5s ease forwards;");
+    agregar(s, cab);
+    var seg = Math.max(3, FESTIVO.bienvenida.segundos || 8);
+    s.style.animationDuration = (seg + 1.5) + "s";
+    setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); }, (seg + 1.6) * 1000);
+  }
+
+  /* ══════════ poner y quitar ══════════ */
+
+  function alRedimensionar() { medir(); recolocar.forEach(function (f) { try { f(); } catch (x) {} }); }
+
+  function quitar() {
+    terminarAnimacion();
+    puestos.forEach(function (p) {
+      if (p.deshacer) p.deshacer(); else if (p.parentNode) p.parentNode.removeChild(p);
+    });
+    puestos = []; recolocar = [];
+    if (activo) document.documentElement.classList.remove("festivo", "festivo-" + activo);
+    activo = null;
+    window.removeEventListener("resize", alRedimensionar);
+    window.removeEventListener("load", alRedimensionar);
+  }
+
+  function esInicio() {
+    return !!document.getElementById("page-header") && !/[?&](cat|sub|q|ver)=/.test(location.search);
+  }
+
+  // opciones.bienvenida: true = mostrarla siempre · false = nunca · sin indicar = según la configuración
+  function poner(tema, opciones) {
+    tema = normal(tema); opciones = opciones || {};
+    quitar();
+    var t = TEMAS[tema];
+    if (!t || !document.body) return false;
+    activo = tema;
+    quieto = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    document.documentElement.classList.add("festivo", "festivo-" + tema);
+
+    var est = document.createElement("style");
+    est.textContent = "@keyframes festivo-parpadeo{0%,100%{opacity:.15}50%{opacity:1}}" +
+      "@keyframes festivo-saludo{0%{opacity:0;margin-top:-8px}6%{opacity:1;margin-top:0}86%{opacity:1}100%{opacity:0}}";
+    agregar(est, document.head || document.body);
+
+    var cab = null;
+    try { cab = ponerFranja(t); } catch (x) {}
+    try { ponerAccesorios(t); } catch (x) {}
+
+    var b = FESTIVO.bienvenida, dar = opciones.bienvenida;
+    if (dar === undefined) {
+      dar = !b.soloEnInicio || esInicio();
+      if (dar && b.unaVezPorVisita) {
+        try {
+          if (sessionStorage.getItem("festivo-visto") === tema) dar = false;
+          else sessionStorage.setItem("festivo-visto", tema);
+        } catch (x) {}
+      }
+    }
+    if (dar) {
+      try { ponerAnimacion(t); } catch (x) {}
+      try { ponerSaludo(t, cab); } catch (x) {}
+    }
+    window.addEventListener("resize", alRedimensionar);
+    window.addEventListener("load", alRedimensionar);
+    setTimeout(alRedimensionar, 600); setTimeout(alRedimensionar, 2500);   // por si el logo terminó de cargar después
     return true;
   }
 
   function iniciar() {
     var r = decidir();
     if (r.tema === "apagado") return;
-    // Respeta a quien pidió "reducir movimiento" en su sistema (salvo que estés probando con ?festivo=)
-    var quieto = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (quieto && !r.forzado) return;
-    poner(r.tema);
+    poner(r.tema, r.forzado ? { bienvenida: true } : {});
   }
 
-  // Para probar desde la consola del navegador:  Festivo.poner("diablo")  ·  Festivo.quitar()
+  // Para probar desde la consola del navegador:  Festivo.poner("diablo", { bienvenida: true })  ·  Festivo.quitar()
   window.Festivo = { poner: poner, quitar: quitar, temas: Object.keys(TEMAS), temaDeHoy: temaDeHoy,
                      actual: function () { return activo; } };
 
