@@ -155,6 +155,26 @@ const CONFIG = {
       const s = u.toString();
       return location.pathname + (s ? "?" + s : "");
     }
+    // v10.3 (SEO): dirección que va en el href de los enlaces de categoría. Si el enlace es solo
+    // categoría/subcategoría, apunta a su página fija c/<cat>/<sub>/ (la misma regla que ruta_cat()
+    // en process/GenerarPaginas.py), para que Google siga esas URL y no las "?cat=…".
+    // El clic NO cambia: enlaceInterno() lo intercepta y el catálogo sigue usando ?cat= como siempre.
+    // Búsquedas (?q=), "ver todos" (&ver=) y productos (&p=) se quedan con construirURL().
+    function hrefSEO(e) {
+      if (!e || !e.cat || e.q || e.p || e.ver) return construirURL(e || {});
+      let r = "/c/" + e.cat + "/";
+      if (e.sub && e.sub !== "otros" && e.sub !== e.cat) r += e.sub + "/";
+      return r;
+    }
+    // Convierte "?cat=bar&sub=x" (enlaces de la portada) a su estado
+    function estadoDeEnlace(enlace) {
+      const u = new URLSearchParams(String(enlace || "").replace(/^\?/, ""));
+      return { cat: u.get("cat") || "", sub: u.get("sub") || "", q: u.get("q") || "", p: u.get("p") || "", ver: u.get("ver") || "" };
+    }
+    // v10.3: href de los banners de la portada (el clic sigue usando data-ir con ?cat=)
+    function hrefPortada(enlace) {
+      return String(enlace || "").startsWith("?") ? hrefSEO(estadoDeEnlace(enlace)) : enlace;
+    }
     // Guarda la posición de scroll de la vista actual antes de salir de ella
     function guardarScroll() {
       try { history.replaceState({ ...(history.state || {}), gc: true, scrollY: window.scrollY }, "", location.href); } catch (e) {}
@@ -624,17 +644,18 @@ const CONFIG = {
       const diapositivas = dinamica && sel.slides.length ? diapositivasDinamicas(sel.slides) : (cfg.diapositivas || []);
 
       const enlazar = (a) => {
-        if (!a.getAttribute("href").startsWith("?")) return;
+        const ir = a.dataset.ir || a.getAttribute("href") || "";   // v10.3
+        if (!ir.startsWith("?")) return;
         a.addEventListener("click", (ev) => {
           if (ev.button !== 0 || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey) return;
           ev.preventDefault();
-          guardarScroll(); history.pushState({ gc: true, scrollY: 0 }, "", location.pathname + a.getAttribute("href"));
+          guardarScroll(); history.pushState({ gc: true, scrollY: 0 }, "", location.pathname + ir);
           renderDesdeURL(); irArribaCatalogo();
         });
       };
       const n = diapositivas.length;
       pista.innerHTML = diapositivas.map((d, i) => `
-        <a class="pt-slide${d.fotos ? " pt-con-collage" : ""}" href="${escP(d.enlace)}">
+        <a class="pt-slide${d.fotos ? " pt-con-collage" : ""}" href="${escP(hrefPortada(d.enlace))}" data-ir="${escP(d.enlace)}">
           ${d.fotos ? `<div class="pt-collage" aria-hidden="true">${d.fotos.map((u, k) => `<img src="${escP(u)}" alt="" ${i === 0 && k === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} onerror="this.remove()">`).join("")}</div>`
             : `<img src="${escP(d.foto)}" alt="" style="object-position:${escP(d.enfoque || "center 30%")};${d.enfoqueMovil ? "--enfoque-movil:" + escP(d.enfoqueMovil) : ""}" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} onerror="this.remove()">`}
           <div class="pt-texto">
@@ -658,7 +679,7 @@ const CONFIG = {
                  desc: rellenar(t.promoDesc || "{disponibles} productos · desde {precio}", cat), boton: cat.nombre.length <= 14 ? "Ver " + nombreBonito(cat.nombre) : "Ver más", enlace: "?cat=" + cat.slug };
       }).filter(Boolean);
       document.getElementById("pt-promos").innerHTML = promos.map(p => `
-        <a class="pt-promo" href="${escP(p.enlace)}"${/^https?:/i.test(p.enlace) ? ' target="_blank" rel="noopener"' : ""} style="background:${escP(p.color)}">
+        <a class="pt-promo" href="${escP(hrefPortada(p.enlace))}" data-ir="${escP(p.enlace)}"${/^https?:/i.test(p.enlace) ? ' target="_blank" rel="noopener"' : ""} style="background:${escP(p.color)}">
           <i class="bi ${escP(p.icon)} pt-promo-icono" aria-hidden="true"></i>
           <strong>${escP(p.titulo)}</strong><span class="pt-promo-desc">${escP(p.desc)}</span>
           <span class="pt-boton">${escP(p.boton)}</span>
@@ -1153,7 +1174,7 @@ const CONFIG = {
                 migas.appendChild(span);
             } else {
                 const a = document.createElement("a");
-                a.href = construirURL(parte.estado);
+                a.href = hrefSEO(parte.estado);
                 a.innerHTML = (parte.icono ? `<i class="bi ${parte.icono}"></i> ` : "") + esc(parte.texto);
                 enlaceInterno(a, parte.estado);
                 migas.appendChild(a);
@@ -1233,7 +1254,7 @@ const CONFIG = {
         const fotos = fotosCollage({ id: semilla, items });
         const a = document.createElement("a");
         a.className = "cat-tile";
-        a.href = construirURL(estado);
+        a.href = hrefSEO(estado);
         a.setAttribute("aria-label", `${nombre}: ${items.length} productos`);
         const imgs = fotos.length
           ? fotos.map(p => `<img src="${miniatura(p.imagen)}" alt="" loading="lazy" decoding="async" onerror="reintentarImg(this, SIN_FOTO)">`).join("")
@@ -1534,7 +1555,7 @@ const CONFIG = {
         const agregarBoton = (html, estado, clave, extraClase = "") => {
             const a = document.createElement("a");
             a.className = "boton-categoria " + extraClase;
-            a.href = construirURL(estado);
+            a.href = hrefSEO(estado);
             a.dataset.vista = clave;
             a.innerHTML = html;
             enlaceInterno(a, estado);
